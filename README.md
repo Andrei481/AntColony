@@ -10,3 +10,9 @@ Simulating the world of ants
 - David POPESCU &nbsp;&nbsp; — &nbsp;&nbsp; popescudavidalexandruemanuel@gmail.com
 
 <img src="https://news.harvard.edu/wp-content/uploads/2009/11/kronaueretalarmyants5.jpg" alt="Stock image" width="500"/>
+
+### Project specification
+
+### Concurrency problems
+
+### Architecture
