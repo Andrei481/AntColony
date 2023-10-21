@@ -1,6 +1,6 @@
 # AntColony
 
-Simulation of 
+Simulating the world of ants
 
 ### Team members:
 
