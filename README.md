@@ -27,4 +27,16 @@ By executing this project description, we aspire to craft an engaging and inform
 
 ### Concurrency problems
 
+- **Race Conditions**: Race conditions can occur when multiple ants concurrently access and modify shared resources, potentially leading to data corruption or incorrect outcomes if synchronization is not properly managed.
+
+- **Deadlocks**: Deadlocks can happen when ants wait for each other to release resources, causing the simulation to stall due to improper resource access coordination.
+
+- **Pheromone Updates**: Coordinating pheromone deposition and evaporation among multiple ants is complex, as they may attempt to update pheromone levels on the same paths. Ensuring data consistency in such updates is a challenge.
+
+- **Resource Contention**: Ants compete for resources like food and space. Contention for these resources can lead to inefficiencies, and managing resource allocation fairly and efficiently is a concurrency challenge.
+
+- **Task Coordination**: Ants need to communicate and coordinate their activities, such as following specific pheromone trails. Coordinating communication and task synchronization among ants can be complex in a multi-threaded environment.
+
+- **Complex Decision-Making**: Ants are expected to make random but informed decisions based on sensory inputs. Coordinating these decision-making processes in a multi-threaded environment while preventing ants from following the same paths is a challenging aspect of the simulation.
+
 ### Architecture
