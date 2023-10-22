@@ -40,3 +40,40 @@ By executing this project description, we aspire to craft an engaging and inform
 - **Complex Decision-Making**: Ants are expected to make random but informed decisions based on sensory inputs. Coordinating these decision-making processes in a multi-threaded environment while preventing ants from following the same paths is a challenging aspect of the simulation.
 
 ### Architecture
+
+**_Modules_**
+
+**Ants Module**
+
+_Ant Class_: This class represents individual ants. It should include attributes such as position, pheromone levels, and state. Ants should be capable of performing actions like foraging, depositing pheromones, and returning home.
+
+**World Module**
+       
+_World Class_: The World class defines the environment where the simulation takes place. It includes the terrain, home base, food sources, and obstacles. It manages the spatial layout of the simulation.
+
+_Pheromone Class_: This class represents the pheromone trails left by ants and handles their deposition and evaporation.
+
+_Food Class_: Represents food sources in the simulation. It manages the availability of food and tracks consumption by ants.
+
+**Simulation Module**
+
+_Simulation Class_: The Simulation class is responsible for coordinating and managing the overall simulation. It initializes the world, creates and manages ant agents, and ensures synchronization among threads.
+
+**_Threads_**
+
+_Ant Threads_:
+        Each ant in the simulation runs as an independent thread. Ant threads simulate the autonomous behavior of ants, including wandering, foraging, and interacting with the environment. These threads continuously sense their surroundings and make decisions based on sensory inputs.
+
+_Evaporation Thread_:
+        A separate thread responsible for managing pheromone evaporation. It periodically updates pheromone levels across the world to simulate the fading of pheromone trails.
+
+**_Entry Points_**
+
+_Main Entry Point_:
+        The main entry point initializes the simulation environment and orchestrates the creation of ant threads, the evaporation thread, and the world objects. It kicks off the simulation and ensures proper termination when the simulation ends.
+
+_Ant Behavior Entry Point_:
+        This entry point defines the behavior of individual ants. It handles the logic for ants to sense their surroundings, make decisions, move, deposit pheromones, and interact with food sources and the home base.
+
+_Evaporation Thread Entry Point_:
+        The entry point for the evaporation thread, responsible for managing pheromone evaporation. It periodically updates pheromone levels in the world to simulate the decay of pheromone trails.
