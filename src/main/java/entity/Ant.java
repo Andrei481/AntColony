@@ -11,12 +11,20 @@ import java.util.Random;
 public class Ant extends Entity{
     Panel ap;
     private int actionLock=0;
+    private Pheromone[][] pheromoneGrid;
     public Ant(Panel ap){
         this.ap=ap;
         solidArea=new Rectangle(0,0,ap.tileSize,ap.tileSize);
-
+        pheromoneGrid = new Pheromone[ap.maxScreenCol][ap.maxScreenRow];
         setDefaultValues();
         getPlayerImages();
+    }
+    public void depositPheromone(int prevX, int prevY) {
+        if (prevX >= 0 && prevX < ap.maxScreenCol && prevY >= 0 && prevY < ap.maxScreenRow) {
+            // Create a new pheromone and set its position and type
+            Pheromone pheromone = new Pheromone(prevX * ap.tileSize, prevY * ap.tileSize);
+            pheromoneGrid[prevX][prevY] = pheromone;
+        }
     }
 
     public void setDefaultValues(){
@@ -77,22 +85,39 @@ public class Ant extends Entity{
         }
     }
     public void update(){
-        //implementation needed
+        int prevX = worldX;
+        int prevY = worldY;
         setAction();
+        depositPheromone(prevX / ap.tileSize, prevY / ap.tileSize); //  this will leave a pheromone behind each move
     }
 
     public void draw(Graphics2D g2){
-        BufferedImage image=null;
+        BufferedImage image = null;
         switch(direction){
             case "up":
-                image=up;break;
+                image = up;
+                break;
             case "down":
-                image=down;break;
+                image = down;
+                break;
             case "left":
-                image=left;break;
+                image = left;
+                break;
             case "right":
-                image=right;break;
+                image = right;
+                break;
         }
-        g2.drawImage(image,worldX,worldY,ap.tileSize*2,ap.tileSize*2,null);
+
+        g2.drawImage(image, worldX, worldY, ap.tileSize * 2, ap.tileSize * 2, null);
+
+        // Render deposited pheromones
+        for (int i = 0; i < ap.maxScreenCol; i++) {
+            for (int j = 0; j < ap.maxScreenRow; j++) {
+                Pheromone pheromone = pheromoneGrid[i][j];
+                if (pheromone != null) {
+                    pheromone.draw(g2);
+                }
+            }
+        }
     }
 }

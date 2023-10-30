@@ -24,6 +24,8 @@ public class Panel extends JPanel implements Runnable {
     Thread GUIThread;
     public CollisionChecker col_checker=new CollisionChecker(this);
     Ant ant=new Ant(this);
+    Ant ant2=new Ant(this);
+
 
     public Panel(){
         this.setPreferredSize(new Dimension(screenWidth,screenHeight));
@@ -57,7 +59,9 @@ public class Panel extends JPanel implements Runnable {
         GUIThread.start();
     }
 
-    public void update(){ant.update();}
+    public void update(){
+        ant.update();
+    }
     public void paintComponent(Graphics g){
         super.paintComponent(g);
         Graphics2D g2=(Graphics2D) g;
