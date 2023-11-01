@@ -8,17 +8,27 @@ import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
 import java.util.Random;
 
-public class Ant extends Entity{
+public class Ant implements Runnable {  // Implement the Runnable interface
+    public int worldX, worldY;
+    public int speed;
+
+    public BufferedImage up, down, left, right;
+    public String direction;
+    public Rectangle solidArea;
+    public boolean collisionOn = false;
+
     Panel ap;
-    private int actionLock=0;
+    private int actionLock = 0;
     private Pheromone[][] pheromoneGrid;
-    public Ant(Panel ap){
-        this.ap=ap;
-        solidArea=new Rectangle(0,0,ap.tileSize,ap.tileSize);
+
+    public Ant(Panel ap) {
+        this.ap = ap;
+        solidArea = new Rectangle(0, 0, ap.tileSize, ap.tileSize);
         pheromoneGrid = new Pheromone[ap.maxScreenCol][ap.maxScreenRow];
         setDefaultValues();
         getPlayerImages();
     }
+
     public void depositPheromone(int prevX, int prevY) {
         if (prevX >= 0 && prevX < ap.maxScreenCol && prevY >= 0 && prevY < ap.maxScreenRow) {
             // Create a new pheromone and set its position and type
@@ -27,25 +37,27 @@ public class Ant extends Entity{
         }
     }
 
-    public void setDefaultValues(){
-        worldX=ap.screenWidth/2-(ap.tileSize/2);
-        worldY=ap.screenHeight/2-(ap.tileSize/2);
-        speed=10;
-        direction="down";
+    public void setDefaultValues() {
+        worldX = ap.screenWidth / 2 - (ap.tileSize / 2);
+        worldY = ap.screenHeight / 2 - (ap.tileSize / 2);
+        speed = 10;
+        direction = "down";
     }
 
-    public void getPlayerImages(){
-        try{
-            up= ImageIO.read(new FileInputStream("res/ant_sprites/up.png"));
-            down= ImageIO.read(new FileInputStream("res/ant_sprites/down.png"));
-            right= ImageIO.read(new FileInputStream("res/ant_sprites/right.png"));
-            left= ImageIO.read(new FileInputStream("res/ant_sprites/left.png"));
-        }catch (Exception e){e.printStackTrace();}
+    public void getPlayerImages() {
+        try {
+            up = ImageIO.read(new FileInputStream("res/ant_sprites/up.png"));
+            down = ImageIO.read(new FileInputStream("res/ant_sprites/down.png"));
+            right = ImageIO.read(new FileInputStream("res/ant_sprites/right.png"));
+            left = ImageIO.read(new FileInputStream("res/ant_sprites/left.png"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
-    public void setAction(){
+
+    public void setAction() {
         actionLock++;
         if (actionLock == 20) {
-
             Random random = new Random();
             int random_dir = random.nextInt(125);
             if (random_dir < 25) {
@@ -56,16 +68,14 @@ public class Ant extends Entity{
                 direction = "left";
             } else {
                 direction = "right";
-
             }
-            actionLock=0;
-
-            //Check collision
-            collisionOn=false;
+            actionLock = 0;
+            // Check collision
+            collisionOn = false;
             ap.col_checker.checkTile(this);
-            //if collsion=false cant move
-            if(collisionOn==false){
-                switch(direction){
+            // if collision = false, can move
+            if (!collisionOn) {
+                switch (direction) {
                     case "up":
                         worldY -= speed;
                         break;
@@ -80,20 +90,32 @@ public class Ant extends Entity{
                         break;
                 }
             }
-
-
         }
     }
-    public void update(){
+
+    public void update() {
         int prevX = worldX;
         int prevY = worldY;
         setAction();
-        depositPheromone(prevX / ap.tileSize, prevY / ap.tileSize); //  this will leave a pheromone behind each move
+        depositPheromone(prevX / ap.tileSize, prevY / ap.tileSize); // this will leave a pheromone behind each move
     }
 
-    public void draw(Graphics2D g2){
+    @Override
+    public void run() {
+        while (true) {
+            update();
+            // Add a delay to control the speed of the Ant
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void draw(Graphics2D g2) {
         BufferedImage image = null;
-        switch(direction){
+        switch (direction) {
             case "up":
                 image = up;
                 break;

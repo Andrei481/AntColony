@@ -5,6 +5,7 @@ import tile.Tile_manager;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 
 public class Panel extends JPanel implements Runnable {
 
@@ -23,14 +24,18 @@ public class Panel extends JPanel implements Runnable {
     Tile_manager tile_manager=new Tile_manager(this);
     Thread GUIThread;
     public CollisionChecker col_checker=new CollisionChecker(this);
-    Ant ant=new Ant(this);
-    Ant ant2=new Ant(this);
+    private ArrayList<Ant> ants = new ArrayList<>();
 
 
     public Panel(){
         this.setPreferredSize(new Dimension(screenWidth,screenHeight));
         this.setBackground(Color.green);
         this.setDoubleBuffered(true);
+
+        int antNumber = 10;
+        for(int i = 0; i < antNumber; i++) {
+            ants.add(new Ant(this));
+        }
     }
 
 
@@ -60,13 +65,17 @@ public class Panel extends JPanel implements Runnable {
     }
 
     public void update(){
-        ant.update();
+        for(Ant ant : ants) {
+            ant.update();
+        }
     }
     public void paintComponent(Graphics g){
         super.paintComponent(g);
         Graphics2D g2=(Graphics2D) g;
         tile_manager.draw(g2);
-        ant.draw(g2);
+        for(Ant ant : ants) {
+            ant.draw(g2);
+        }
         g2.dispose();
     }
 }
