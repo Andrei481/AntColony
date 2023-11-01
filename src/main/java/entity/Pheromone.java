@@ -3,46 +3,75 @@ package entity;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import static java.lang.Math.min;
 
 public class Pheromone {
-    private int x, y;      // Position of the pheromone trail
-    private Color color;   // Color of the pheromone trail
-    private int level = 3;
-    private PheromoneType type = PheromoneType.DEFAULT;// Strength of the pheromone trail
+    private int x, y;
+    private Color color;
+    private int level;
+    private PheromoneType type;
+    private BufferedImage image;
 
-    private BufferedImage image;  // Image representing the pheromone trail
+    private Timer evaporateTimer;
 
     public Pheromone(int x, int y) {
         this.x = x;
         this.y = y;
-        this.color = Color.BLUE;  // You can set the color to green or any color you prefer
-
-        // Initialize the image for rendering the pheromone trail
+        this.color = Color.BLUE;
+        this.level = 3;
+        this.type = PheromoneType.DEFAULT;
         this.image = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = image.createGraphics();
         g.setColor(this.color);
         g.fillRect(0, 0, 1, 1);
         g.dispose();
+
+        // Schedule the evaporation timer
+        evaporateTimer = new Timer();
+        evaporateTimer.schedule(new EvaporateTask(), 10000, 10000);
     }
 
     public void evaporate() {
-        // Implement pheromone evaporation logic here
-        // Reduce the strength of the pheromone over time
-        // You can decrease the strength by a certain amount in each time step
+        if (level > 0) {
+            level--;
+            color = makeDimmerColor(color);
+        }
     }
 
     public void draw(Graphics2D g2) {
-        // Set the color for drawing the pheromone circle
         g2.setColor(color);
 
-        // Calculate the position and size of the circle
         int circleSize = 10;  // Adjust the size as needed
         int circleX = x - circleSize / 2;
         int circleY = y - circleSize / 2;
 
-        // Draw the filled circle
         g2.fillOval(circleX, circleY, circleSize, circleSize);
     }
 
-    // Getter and setter methods for strength, position, and other properties
+    private Color makeDimmerColor(Color originalColor) {
+        int r = originalColor.getRed();
+        int g = originalColor.getGreen();
+        int b = originalColor.getBlue();
+
+        r = min(255, r + 75);
+        g = min(255, g + 75);
+        b = min(255, b + 75);
+
+        return new Color(r, g, b);
+    }
+
+    public int getLevel() {
+        return this.level;
+    }
+
+    private class EvaporateTask extends TimerTask {
+        @Override
+        public void run() {
+            evaporate();
+        }
+    }
+
 }

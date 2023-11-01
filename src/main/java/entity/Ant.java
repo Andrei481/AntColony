@@ -8,7 +8,7 @@ import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
 import java.util.Random;
 
-public class Ant implements Runnable {  // Implement the Runnable interface
+public class Ant implements Runnable {
     public int worldX, worldY;
     public int speed;
 
@@ -27,11 +27,13 @@ public class Ant implements Runnable {  // Implement the Runnable interface
         pheromoneGrid = new Pheromone[ap.maxScreenCol][ap.maxScreenRow];
         setDefaultValues();
         getPlayerImages();
+        Random random = new Random();
+        worldX = random.nextInt(ap.maxScreenCol) * ap.tileSize;
+        worldY = random.nextInt(ap.maxScreenRow) * ap.tileSize;
     }
 
     public void depositPheromone(int prevX, int prevY) {
         if (prevX >= 0 && prevX < ap.maxScreenCol && prevY >= 0 && prevY < ap.maxScreenRow) {
-            // Create a new pheromone and set its position and type
             Pheromone pheromone = new Pheromone(prevX * ap.tileSize, prevY * ap.tileSize);
             pheromoneGrid[prevX][prevY] = pheromone;
         }
@@ -104,7 +106,6 @@ public class Ant implements Runnable {  // Implement the Runnable interface
     public void run() {
         while (true) {
             update();
-            // Add a delay to control the speed of the Ant
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
@@ -132,7 +133,6 @@ public class Ant implements Runnable {  // Implement the Runnable interface
 
         g2.drawImage(image, worldX, worldY, ap.tileSize * 2, ap.tileSize * 2, null);
 
-        // Render deposited pheromones
         for (int i = 0; i < ap.maxScreenCol; i++) {
             for (int j = 0; j < ap.maxScreenRow; j++) {
                 Pheromone pheromone = pheromoneGrid[i][j];
