@@ -36,7 +36,7 @@ public class Pheromone {
     }
 
     public void evaporate() {
-        if(timeCounter==100) {
+        if(timeCounter==500) {
             if (level > 0) {
                 level--;
                 color = makeDimmerColor(color);
@@ -47,13 +47,15 @@ public class Pheromone {
     }
 
     public void draw(Graphics2D g2) {
-        g2.setColor(color);
+        if(level>0) {
+            g2.setColor(color);
 
-        int circleSize = 10;  // Adjust the size as needed
-        int circleX = x - circleSize / 2;
-        int circleY = y - circleSize / 2;
+            int circleSize = 10;  // Adjust the size as needed
+            int circleX = x - circleSize / 2;
+            int circleY = y - circleSize / 2;
 
-        g2.fillOval(circleX, circleY, circleSize, circleSize);
+            g2.fillOval(circleX, circleY, circleSize, circleSize);
+        }
     }
 
     private Color makeDimmerColor(Color originalColor) {
