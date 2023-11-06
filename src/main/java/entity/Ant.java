@@ -17,6 +17,7 @@ public class Ant implements Runnable {
     public Rectangle solidArea;
     public boolean collisionOn = false;
     public boolean foundFood=false;
+    public boolean isHome=false;
 
     Panel ap;
     private int actionLock = 0;
@@ -103,9 +104,8 @@ public class Ant implements Runnable {
             depositPheromone(prevX / ap.tileSize, prevY / ap.tileSize); // this will leave a pheromone behind each move
             for(int x=0;x<ap.maxScreenCol;x++){
                 for(int y=0;y<ap.maxScreenRow;y++)
-                    try{
-                        pheromoneGrid[x][y].update();
-                    }catch(Exception e){}
+                        if(pheromoneGrid[x][y]!=null)
+                            pheromoneGrid[x][y].update();
             }
     }
 

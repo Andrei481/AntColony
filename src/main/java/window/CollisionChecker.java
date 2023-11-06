@@ -4,6 +4,8 @@ import entity.Ant;
 
 public class CollisionChecker {
     Panel ap;
+
+
     public CollisionChecker(Panel ap){
         this.ap=ap;
     }
@@ -22,6 +24,7 @@ public class CollisionChecker {
         int tileNum1 = 0, tileNum2 = 0;
         boolean collision = false;
         boolean food=false;
+        boolean home=false;
 
         if (entityLeftCol >= 0 && entityRightCol >= 0 &&
                 entityLeftCol < ap.tile_manager.mapTileNum.length &&
@@ -57,10 +60,17 @@ public class CollisionChecker {
             }
             collision = ap.tile_manager.tile[tileNum1].collision || ap.tile_manager.tile[tileNum2].collision;
             food = ap.tile_manager.tile[tileNum1].isFood || ap.tile_manager.tile[tileNum2].isFood;
+            home=ap.tile_manager.tile[tileNum1].isHome || ap.tile_manager.tile[tileNum2].isHome;
 
         }
-        ant.foundFood=food;
+
         ant.collisionOn = collision;
+        ant.isHome=home;
+
+        if(ant.isHome)
+            ant.foundFood=false;
+        if(food)
+            ant.foundFood=true;
     }
 
 }

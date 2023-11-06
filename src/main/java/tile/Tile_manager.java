@@ -28,6 +28,7 @@ public class Tile_manager {
             tile[1]=new Tile();
             tile[1].image=ImageIO.read(new FileInputStream("res/tiles/nest.png"));
             tile[1].collision=true;
+            tile[1].isHome=true;
 
             tile[2]=new Tile();
             tile[2].image=ImageIO.read(new FileInputStream("res/tiles/food.png"));
