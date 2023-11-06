@@ -1,6 +1,7 @@
 package window;
 
 import entity.Ant;
+import entity.Pheromone;
 import tile.Tile_manager;
 
 import javax.swing.*;
@@ -25,6 +26,8 @@ public class Panel extends JPanel implements Runnable {
     Thread GUIThread;
     public CollisionChecker col_checker=new CollisionChecker(this);
     private ArrayList<Ant> ants = new ArrayList<>();
+    private ArrayList<Thread> threadList=new ArrayList<>();
+
 
 
     public Panel(){
@@ -35,6 +38,8 @@ public class Panel extends JPanel implements Runnable {
         int antNumber = 10;
         for(int i = 0; i < antNumber; i++) {
             ants.add(new Ant(this));
+            threadList.add(new Thread(ants.get(ants.size()-1)));
+            threadList.get(threadList.size()-1).start();
         }
     }
 
@@ -45,6 +50,7 @@ public class Panel extends JPanel implements Runnable {
         double nextDrawTime=System.nanoTime()+drawInterval;
         while(GUIThread!=null){
             long currentTime=System.nanoTime();
+            System.out.println(java.lang.Thread.activeCount());
             update();
             repaint();
             try{

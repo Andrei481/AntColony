@@ -16,6 +16,7 @@ public class Pheromone {
     private BufferedImage image;
 
     private Timer evaporateTimer;
+    private int timeCounter;
 
     public Pheromone(int x, int y) {
         this.x = x;
@@ -28,16 +29,20 @@ public class Pheromone {
         g.setColor(this.color);
         g.fillRect(0, 0, 1, 1);
         g.dispose();
-
+        timeCounter=0;
         // Schedule the evaporation timer
-        evaporateTimer = new Timer();
-        evaporateTimer.schedule(new EvaporateTask(), 10000, 10000);
+        //evaporateTimer = new Timer();
+        //evaporateTimer.schedule(new EvaporateTask(), 10000, 10000);
     }
 
     public void evaporate() {
-        if (level > 0) {
-            level--;
-            color = makeDimmerColor(color);
+        if(timeCounter==100) {
+            if (level > 0) {
+                level--;
+                color = makeDimmerColor(color);
+
+            }
+            timeCounter=0;
         }
     }
 
@@ -72,6 +77,11 @@ public class Pheromone {
         public void run() {
             evaporate();
         }
+    }
+
+    public void update(){
+        timeCounter++;
+        evaporate();
     }
 
 }

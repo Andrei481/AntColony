@@ -16,6 +16,7 @@ public class Ant implements Runnable {
     public String direction;
     public Rectangle solidArea;
     public boolean collisionOn = false;
+    public boolean foundFood=false;
 
     Panel ap;
     private int actionLock = 0;
@@ -28,14 +29,13 @@ public class Ant implements Runnable {
         setDefaultValues();
         getPlayerImages();
         Random random = new Random();
-        worldX = random.nextInt(ap.maxScreenCol) * ap.tileSize;
-        worldY = random.nextInt(ap.maxScreenRow) * ap.tileSize;
+        worldX = 10 * ap.tileSize;
+        worldY = 10 * ap.tileSize;
     }
 
     public void depositPheromone(int prevX, int prevY) {
         if (prevX >= 0 && prevX < ap.maxScreenCol && prevY >= 0 && prevY < ap.maxScreenRow) {
-            Pheromone pheromone = new Pheromone(prevX * ap.tileSize, prevY * ap.tileSize);
-            pheromoneGrid[prevX][prevY] = pheromone;
+            pheromoneGrid[prevX][prevY] =new Pheromone(prevX * ap.tileSize, prevY * ap.tileSize);
         }
     }
 
@@ -59,7 +59,7 @@ public class Ant implements Runnable {
 
     public void setAction() {
         actionLock++;
-        if (actionLock == 20) {
+        if (actionLock == 5) {
             Random random = new Random();
             int random_dir = random.nextInt(125);
             if (random_dir < 25) {
@@ -99,7 +99,14 @@ public class Ant implements Runnable {
         int prevX = worldX;
         int prevY = worldY;
         setAction();
-        depositPheromone(prevX / ap.tileSize, prevY / ap.tileSize); // this will leave a pheromone behind each move
+        if(foundFood)
+            depositPheromone(prevX / ap.tileSize, prevY / ap.tileSize); // this will leave a pheromone behind each move
+            for(int x=0;x<ap.maxScreenCol;x++){
+                for(int y=0;y<ap.maxScreenRow;y++)
+                    try{
+                        pheromoneGrid[x][y].update();
+                    }catch(Exception e){}
+            }
     }
 
     @Override

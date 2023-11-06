@@ -11,4 +11,5 @@ public class Entity {
     public String direction;
     public Rectangle solidArea;
     public boolean collisionOn=false;
+    public boolean foundFood=false;
 }
