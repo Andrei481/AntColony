@@ -81,4 +81,5 @@ public class Tile_manager {
             br.close();
         }catch (Exception e){e.printStackTrace();}
     }
+    public int[][] getMap(){return mapTileNum;}
 }

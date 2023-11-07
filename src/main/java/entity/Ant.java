@@ -8,9 +8,12 @@ import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
 import java.util.Random;
 
+import static java.lang.Thread.sleep;
+
 public class Ant implements Runnable {
     public int worldX, worldY;
     public int speed;
+    private int id;
 
     public BufferedImage up, down, left, right;
     public String direction;
@@ -22,16 +25,19 @@ public class Ant implements Runnable {
     Panel ap;
     private int actionLock = 0;
     private Pheromone[][] pheromoneGrid;
+    private int startPosX,startPosY;
+    private int nestPosX,nestPosY;
 
-    public Ant(Panel ap) {
+    public Ant(Panel ap,int id) {
+        this.id=id;
         this.ap = ap;
         solidArea = new Rectangle(0, 0, ap.tileSize, ap.tileSize);
         pheromoneGrid = new Pheromone[ap.maxScreenCol][ap.maxScreenRow];
         setDefaultValues();
         getPlayerImages();
         Random random = new Random();
-        worldX = 10 * ap.tileSize;
-        worldY = 10 * ap.tileSize;
+        worldX = startPosX;
+        worldY = startPosY;
     }
 
     public void depositPheromone(int prevX, int prevY) {
@@ -41,8 +47,10 @@ public class Ant implements Runnable {
     }
 
     public void setDefaultValues() {
-        worldX = ap.screenWidth / 2 - (ap.tileSize / 2);
-        worldY = ap.screenHeight / 2 - (ap.tileSize / 2);
+        startPosX=13*ap.tileSize;
+        startPosY=13*ap.tileSize;
+        nestPosX=5*ap.tileSize;
+        nestPosY=5*ap.tileSize;
         speed = 10;
         direction = "down";
     }
@@ -59,41 +67,81 @@ public class Ant implements Runnable {
     }
 
     public void setAction() {
+
         actionLock++;
         if (actionLock == 5) {
-            Random random = new Random();
-            int random_dir = random.nextInt(125);
-            if (random_dir < 25) {
-                direction = "up";
-            } else if (random_dir < 50) {
-                direction = "down";
-            } else if (random_dir < 75) {
-                direction = "left";
-            } else {
-                direction = "right";
-            }
-            actionLock = 0;
-            // Check collision
-            collisionOn = false;
-            ap.col_checker.checkTile(this);
-            // if collision = false, can move
-            if (!collisionOn) {
-                switch (direction) {
-                    case "up":
-                        worldY -= speed;
-                        break;
-                    case "down":
-                        worldY += speed;
-                        break;
-                    case "left":
-                        worldX -= speed;
-                        break;
-                    case "right":
-                        worldX += speed;
-                        break;
+            if (!foundFood) {
+                Random random = new Random();
+                int random_dir = random.nextInt(125);
+                if (random_dir < 25) {
+                    direction = "up";
+                } else if (random_dir < 50) {
+                    direction = "down";
+                } else if (random_dir < 75) {
+                    direction = "left";
+                } else {
+                    direction = "right";
                 }
+                actionLock = 0;
+                // Check collision
+                collisionOn = false;
+                ap.col_checker.checkTile(this);
+                // if collision = false, can move
+                if (!collisionOn) {
+                    switch (direction) {
+                        case "up":
+                            worldY -= speed;
+                            break;
+                        case "down":
+                            worldY += speed;
+                            break;
+                        case "left":
+                            worldX -= speed;
+                            break;
+                        case "right":
+                            worldX += speed;
+                            break;
+                    }
+                }
+            } else {
+                actionLock = 0;
+
+                boolean moved = false;
+                collisionOn=false;
+                if (worldX > nestPosX && !moved) {
+                    direction = "left";
+                    ap.col_checker.checkTile(this);
+                    if (!collisionOn) {
+                        worldX -= speed;
+                        moved = true;
+                    }
+                }
+                if (worldX < nestPosX && !moved) {
+                    direction = "right";
+                    ap.col_checker.checkTile(this);
+                    if (!collisionOn) {
+                        worldX += speed;
+                        moved = true;
+                    }
+                }
+
+                if (worldY > nestPosY && !moved) {
+                    direction = "up";
+                    ap.col_checker.checkTile(this);
+                    if (!collisionOn) {
+                        worldY -= speed;
+                        moved = true;
+                    }
+                }
+                if (worldY < nestPosY && !moved) {
+                    direction = "down";
+                    worldY += speed;
+                }
+                //System.out.println("Ant " + id +foundFood+isHome+ " has found food, is going "+direction);
             }
         }
+
+
     }
 
     public void update() {
@@ -114,7 +162,7 @@ public class Ant implements Runnable {
         while (true) {
             update();
             try {
-                Thread.sleep(100);
+                sleep(10);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

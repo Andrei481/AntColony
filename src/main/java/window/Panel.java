@@ -20,9 +20,11 @@ public class Panel extends JPanel implements Runnable {
     public final int screenWidth=tileSize*maxScreenCol;
     public final int screenHeight=tileSize*maxScreenRow;
 
+    public int foodScore=0;
+
 
     int FPS=60;
-    Tile_manager tile_manager=new Tile_manager(this);
+    public Tile_manager tile_manager=new Tile_manager(this);
     Thread GUIThread;
     public CollisionChecker col_checker=new CollisionChecker(this);
     private ArrayList<Ant> ants = new ArrayList<>();
@@ -37,9 +39,9 @@ public class Panel extends JPanel implements Runnable {
 
         int antNumber = 10;
         for(int i = 0; i < antNumber; i++) {
-            ants.add(new Ant(this));
+            ants.add(new Ant(this,i+1));
             threadList.add(new Thread(ants.get(ants.size()-1)));
-            threadList.get(threadList.size()-1).start();
+
         }
     }
 
@@ -48,10 +50,12 @@ public class Panel extends JPanel implements Runnable {
     public void run() {
         double drawInterval=1000000000/FPS;
         double nextDrawTime=System.nanoTime()+drawInterval;
+        for(Thread thread:threadList){
+            thread.start();
+        }
         while(GUIThread!=null){
             long currentTime=System.nanoTime();
-            System.out.println(java.lang.Thread.activeCount());
-            update();
+            //System.out.println("Threads used:"+java.lang.Thread.activeCount()+" FoodScore="+foodScore);
             repaint();
             try{
                 double remainingTime=nextDrawTime-System.nanoTime();
@@ -70,11 +74,6 @@ public class Panel extends JPanel implements Runnable {
         GUIThread.start();
     }
 
-    public void update(){
-        for(Ant ant : ants) {
-            ant.update();
-        }
-    }
     public void paintComponent(Graphics g){
         super.paintComponent(g);
         Graphics2D g2=(Graphics2D) g;

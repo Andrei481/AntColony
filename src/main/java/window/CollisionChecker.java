@@ -25,8 +25,8 @@ public class CollisionChecker {
         boolean collision = false;
         boolean food=false;
         boolean home=false;
-
         if (entityLeftCol >= 0 && entityRightCol >= 0 &&
+
                 entityLeftCol < ap.tile_manager.mapTileNum.length &&
                 entityRightCol < ap.tile_manager.mapTileNum.length &&
                 entityTopRow >= 0 && entityBotRow >= 0 &&
@@ -67,8 +67,11 @@ public class CollisionChecker {
         ant.collisionOn = collision;
         ant.isHome=home;
 
-        if(ant.isHome)
-            ant.foundFood=false;
+        if(ant.isHome) {
+            if (ant.foundFood)
+                ap.foodScore++;
+            ant.foundFood = false;
+        }
         if(food)
             ant.foundFood=true;
     }
