@@ -39,13 +39,16 @@ public class Pheromone {
     }
 
     public void evaporate() {
-        if(timeCounter==500) {
-            if (level > 0) {
-                level--;
-                color = makeDimmerColor(color);
-
-            }
-            timeCounter=0;
+//        if(timeCounter==500) {
+//            if (level > 0) {
+//                level--;
+//                color = makeDimmerColor(color);
+//
+//            }
+//            timeCounter=0;
+        if (level > 0) {
+            level--;
+            color = makeDimmerColor(color);
         }
     }
 

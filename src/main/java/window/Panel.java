@@ -3,6 +3,7 @@ package window;
 import entity.Ant;
 import entity.Pheromone;
 import tile.Tile_manager;
+import utils.EvaporationThread;
 
 import javax.swing.*;
 import java.awt.*;
@@ -30,6 +31,7 @@ public class Panel extends JPanel implements Runnable {
     private ArrayList<Ant> ants = new ArrayList<>();
     private ArrayList<Thread> threadList=new ArrayList<>();
     public Pheromone[][] pheromoneGrid;
+    private EvaporationThread evaporationThread;
 
     public Panel(){
         this.setPreferredSize(new Dimension(screenWidth,screenHeight));
@@ -42,6 +44,8 @@ public class Panel extends JPanel implements Runnable {
             ants.add(new Ant(this,i+1));
             threadList.add(new Thread(ants.get(ants.size()-1)));
         }
+        evaporationThread = new EvaporationThread(this.pheromoneGrid);
+        evaporationThread.start();
     }
 
 

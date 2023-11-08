@@ -56,7 +56,7 @@ public class Ant implements Runnable {
         startPosY=13*ap.tileSize;
         nestPosX=5*ap.tileSize;
         nestPosY=5*ap.tileSize;
-        speed = 10;
+        speed = 5;
         direction = "down";
     }
 
