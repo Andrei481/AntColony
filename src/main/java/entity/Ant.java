@@ -42,7 +42,12 @@ public class Ant implements Runnable {
 
     public void depositPheromone(int prevX, int prevY) {
         if (prevX >= 0 && prevX < ap.maxScreenCol && prevY >= 0 && prevY < ap.maxScreenRow) {
-            pheromoneGrid[prevX][prevY] =new Pheromone(prevX * ap.tileSize, prevY * ap.tileSize);
+            Pheromone pheromone;
+            if (foundFood)
+                pheromone = new Pheromone(prevX * ap.tileSize, prevY * ap.tileSize, PheromoneType.HOME);
+            else
+                pheromone = new Pheromone(prevX * ap.tileSize, prevY * ap.tileSize, PheromoneType.FOOD);
+            pheromoneGrid[prevX][prevY] = pheromone;
         }
     }
 
@@ -51,7 +56,7 @@ public class Ant implements Runnable {
         startPosY=13*ap.tileSize;
         nestPosX=5*ap.tileSize;
         nestPosY=5*ap.tileSize;
-        speed = 10;
+        speed = 3;
         direction = "down";
     }
 
@@ -148,12 +153,12 @@ public class Ant implements Runnable {
         int prevX = worldX;
         int prevY = worldY;
         setAction();
-        if(foundFood)
-            depositPheromone(prevX / ap.tileSize, prevY / ap.tileSize); // this will leave a pheromone behind each move
-            for(int x=0;x<ap.maxScreenCol;x++){
-                for(int y=0;y<ap.maxScreenRow;y++)
-                        if(pheromoneGrid[x][y]!=null)
-                            pheromoneGrid[x][y].update();
+//        if(foundFood)
+        depositPheromone(prevX / ap.tileSize, prevY / ap.tileSize); // this will leave a pheromone behind each move
+        for(int x=0;x<ap.maxScreenCol;x++){
+            for(int y=0;y<ap.maxScreenRow;y++)
+                if(pheromoneGrid[x][y]!=null)
+                    pheromoneGrid[x][y].update();
             }
     }
 

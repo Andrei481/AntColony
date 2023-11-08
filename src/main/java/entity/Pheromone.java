@@ -18,12 +18,15 @@ public class Pheromone {
     private Timer evaporateTimer;
     private int timeCounter;
 
-    public Pheromone(int x, int y) {
+    public Pheromone(int x, int y, PheromoneType pheromoneType) {
         this.x = x;
         this.y = y;
-        this.color = Color.BLUE;
         this.level = 3;
-        this.type = PheromoneType.DEFAULT;
+        this.type = pheromoneType;
+        if(pheromoneType == PheromoneType.FOOD)
+            this.color = Color.RED;
+        else
+            this.color = Color.BLUE;
         this.image = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = image.createGraphics();
         g.setColor(this.color);
@@ -72,6 +75,10 @@ public class Pheromone {
 
     public int getLevel() {
         return this.level;
+    }
+
+    public void setPheromoneType(entity.PheromoneType newType) {
+        this.type = newType;
     }
 
     private class EvaporateTask extends TimerTask {

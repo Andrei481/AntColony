@@ -37,7 +37,7 @@ public class Panel extends JPanel implements Runnable {
         this.setBackground(Color.green);
         this.setDoubleBuffered(true);
 
-        int antNumber = 10;
+        int antNumber = 2;
         for(int i = 0; i < antNumber; i++) {
             ants.add(new Ant(this,i+1));
             threadList.add(new Thread(ants.get(ants.size()-1)));
