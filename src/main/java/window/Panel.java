@@ -29,6 +29,7 @@ public class Panel extends JPanel implements Runnable {
     public CollisionChecker col_checker=new CollisionChecker(this);
     private ArrayList<Ant> ants = new ArrayList<>();
     private ArrayList<Thread> threadList=new ArrayList<>();
+    public Pheromone[][] pheromoneGrid;
 
 
 
@@ -36,8 +37,9 @@ public class Panel extends JPanel implements Runnable {
         this.setPreferredSize(new Dimension(screenWidth,screenHeight));
         this.setBackground(Color.green);
         this.setDoubleBuffered(true);
+        this.pheromoneGrid = new Pheromone[maxScreenCol][maxScreenRow];
 
-        int antNumber = 2;
+        int antNumber = 10;
         for(int i = 0; i < antNumber; i++) {
             ants.add(new Ant(this,i+1));
             threadList.add(new Thread(ants.get(ants.size()-1)));

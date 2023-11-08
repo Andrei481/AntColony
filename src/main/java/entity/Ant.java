@@ -24,7 +24,7 @@ public class Ant implements Runnable {
 
     Panel ap;
     private int actionLock = 0;
-    private Pheromone[][] pheromoneGrid;
+//    private Pheromone[][] pheromoneGrid;
     private int startPosX,startPosY;
     private int nestPosX,nestPosY;
 
@@ -32,7 +32,7 @@ public class Ant implements Runnable {
         this.id=id;
         this.ap = ap;
         solidArea = new Rectangle(0, 0, ap.tileSize, ap.tileSize);
-        pheromoneGrid = new Pheromone[ap.maxScreenCol][ap.maxScreenRow];
+//        pheromoneGrid = new Pheromone[ap.maxScreenCol][ap.maxScreenRow];
         setDefaultValues();
         getPlayerImages();
         Random random = new Random();
@@ -47,7 +47,7 @@ public class Ant implements Runnable {
                 pheromone = new Pheromone(prevX * ap.tileSize, prevY * ap.tileSize, PheromoneType.HOME);
             else
                 pheromone = new Pheromone(prevX * ap.tileSize, prevY * ap.tileSize, PheromoneType.FOOD);
-            pheromoneGrid[prevX][prevY] = pheromone;
+            ap.pheromoneGrid[prevX][prevY] = pheromone;
         }
     }
 
@@ -56,7 +56,7 @@ public class Ant implements Runnable {
         startPosY=13*ap.tileSize;
         nestPosX=5*ap.tileSize;
         nestPosY=5*ap.tileSize;
-        speed = 3;
+        speed = 5;
         direction = "down";
     }
 
@@ -155,11 +155,11 @@ public class Ant implements Runnable {
         setAction();
 //        if(foundFood)
         depositPheromone(prevX / ap.tileSize, prevY / ap.tileSize); // this will leave a pheromone behind each move
-        for(int x=0;x<ap.maxScreenCol;x++){
-            for(int y=0;y<ap.maxScreenRow;y++)
-                if(pheromoneGrid[x][y]!=null)
-                    pheromoneGrid[x][y].update();
-            }
+//        for(int x=0;x<ap.maxScreenCol;x++){
+//            for(int y=0;y<ap.maxScreenRow;y++)
+//                if(ap.pheromoneGrid[x][y]!=null)
+//                    ap.pheromoneGrid[x][y].update();
+//            }
     }
 
     @Override
@@ -195,7 +195,7 @@ public class Ant implements Runnable {
 
         for (int i = 0; i < ap.maxScreenCol; i++) {
             for (int j = 0; j < ap.maxScreenRow; j++) {
-                Pheromone pheromone = pheromoneGrid[i][j];
+                Pheromone pheromone = ap.pheromoneGrid[i][j];
                 if (pheromone != null) {
                     pheromone.draw(g2);
                 }
