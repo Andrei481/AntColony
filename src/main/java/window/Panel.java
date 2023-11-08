@@ -7,6 +7,7 @@ import tile.Tile_manager;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.concurrent.Semaphore;
 
 public class Panel extends JPanel implements Runnable {
 
@@ -19,19 +20,16 @@ public class Panel extends JPanel implements Runnable {
     public final int maxScreenRow=100;
     public final int screenWidth=tileSize*maxScreenCol;
     public final int screenHeight=tileSize*maxScreenRow;
-
-    public int foodScore=0;
-
-
+    public int reproducedCounter;
     int FPS=60;
     public Tile_manager tile_manager=new Tile_manager(this);
     Thread GUIThread;
-    public CollisionChecker col_checker=new CollisionChecker(this);
+    private Semaphore foodSemaphore = new Semaphore(1);
+    private Semaphore reproduceSemaphore = new Semaphore(1);
+    public CollisionChecker col_checker=new CollisionChecker(this, foodSemaphore, reproduceSemaphore);
     private ArrayList<Ant> ants = new ArrayList<>();
     private ArrayList<Thread> threadList=new ArrayList<>();
     public Pheromone[][] pheromoneGrid;
-
-
 
     public Panel(){
         this.setPreferredSize(new Dimension(screenWidth,screenHeight));
@@ -43,7 +41,6 @@ public class Panel extends JPanel implements Runnable {
         for(int i = 0; i < antNumber; i++) {
             ants.add(new Ant(this,i+1));
             threadList.add(new Thread(ants.get(ants.size()-1)));
-
         }
     }
 

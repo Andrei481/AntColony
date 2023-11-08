@@ -2,15 +2,20 @@ package window;
 
 import entity.Ant;
 
+import java.util.concurrent.Semaphore;
+
 public class CollisionChecker {
     Panel ap;
+    private Semaphore foodSemaphore, reproduceSemaphore;
 
 
-    public CollisionChecker(Panel ap){
+    public CollisionChecker(Panel ap, Semaphore foodSemaphore, Semaphore reproduceSemaphore){
         this.ap=ap;
+        this.foodSemaphore = foodSemaphore;
+        this.reproduceSemaphore = reproduceSemaphore;
     }
 
-    public void checkTile(Ant ant) {
+    public void checkTile(Ant ant) throws InterruptedException {
         int entityLeftWorldX = ant.worldX + ant.solidArea.x;
         int entityRightWorldX = ant.worldX + ant.solidArea.x + ant.solidArea.width;
         int entityTopWorldY = ant.worldY + ant.solidArea.y;
@@ -68,12 +73,23 @@ public class CollisionChecker {
         ant.isHome=home;
 
         if(ant.isHome) {
-            if (ant.foundFood)
-                ap.foodScore++;
+            System.out.println("Ant " + ant.getID() + " is Home");
+            if (ant.foundFood) {
+                reproduceSemaphore.acquire();
+                ap.reproducedCounter++;
+                System.out.println("Ant " + ant.getID() + " has reproduced");
+                reproduceSemaphore.release();
+            }
             ant.foundFood = false;
         }
-        if(food)
-            ant.foundFood=true;
+        else if(food) {
+            if(!ant.foundFood) {
+                foodSemaphore.acquire();
+                ant.foundFood=true;
+                System.out.println("Ant " + ant.getID() + " has gotten food");
+                foodSemaphore.release();
+            }
+        }
     }
 
 }

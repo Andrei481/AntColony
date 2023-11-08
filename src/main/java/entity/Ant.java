@@ -56,7 +56,7 @@ public class Ant implements Runnable {
         startPosY=13*ap.tileSize;
         nestPosX=5*ap.tileSize;
         nestPosY=5*ap.tileSize;
-        speed = 5;
+        speed = 10;
         direction = "down";
     }
 
@@ -71,7 +71,7 @@ public class Ant implements Runnable {
         }
     }
 
-    public void setAction() {
+    public void setAction() throws InterruptedException {
 
         actionLock++;
         if (actionLock == 5) {
@@ -149,7 +149,7 @@ public class Ant implements Runnable {
 
     }
 
-    public void update() {
+    public void update() throws InterruptedException {
         int prevX = worldX;
         int prevY = worldY;
         setAction();
@@ -165,7 +165,11 @@ public class Ant implements Runnable {
     @Override
     public void run() {
         while (true) {
-            update();
+            try {
+                update();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
             try {
                 sleep(10);
             } catch (InterruptedException e) {
@@ -201,5 +205,8 @@ public class Ant implements Runnable {
                 }
             }
         }
+    }
+    public int getID() {
+        return this.id;
     }
 }
