@@ -4,7 +4,7 @@ import entity.Ant;
 import entity.Pheromone;
 import tile.Tile_manager;
 import utils.EvaporationThread;
-
+import utils.Logger;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
@@ -41,8 +41,10 @@ public class Panel extends JPanel implements Runnable {
 
         int antNumber = 10;
         for(int i = 0; i < antNumber; i++) {
-            ants.add(new Ant(this,i+1));
+            Ant ant = new Ant(this,i+1);
+            ants.add(ant);
             threadList.add(new Thread(ants.get(ants.size()-1)));
+            Logger.logSimulation("Ant " + ant.getID() + " has spawned");
         }
         evaporationThread = new EvaporationThread(this.pheromoneGrid);
         evaporationThread.start();
@@ -75,6 +77,7 @@ public class Panel extends JPanel implements Runnable {
     public void startRunThread() {
         GUIThread=new Thread(this);
         GUIThread.start();
+        Logger.logInfo("GUI started");
     }
 
     public void paintComponent(Graphics g){
