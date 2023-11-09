@@ -1,6 +1,7 @@
 package window;
 
 import entity.Ant;
+import entity.Food;
 import entity.Pheromone;
 import tile.Tile_manager;
 import utils.EvaporationThread;
@@ -32,6 +33,7 @@ public class Panel extends JPanel implements Runnable {
     private ArrayList<Thread> threadList=new ArrayList<>();
     public Pheromone[][] pheromoneGrid;
     private EvaporationThread evaporationThread;
+    public ArrayList<Food> foods;
 
     public Panel(){
         this.setPreferredSize(new Dimension(screenWidth,screenHeight));

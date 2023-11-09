@@ -1,10 +1,12 @@
 package tile;
 
+import entity.Food;
 import window.Panel;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.io.*;
+import java.util.ArrayList;
 
 public class Tile_manager {
     Panel ap;
@@ -16,6 +18,7 @@ public class Tile_manager {
         tile=new Tile[4];
         mapTileNum=new int[ap.maxScreenCol][ap.maxScreenRow];
         getTileImage();
+        ap.foods = new ArrayList<>();
         loadMap("res/maps/map1.txt");
     }
 
@@ -72,6 +75,10 @@ public class Tile_manager {
                     String numbers[] = line.split(" ");
                     int num = Integer.parseInt(numbers[col]);
                     mapTileNum[col][row] = num;
+                    if(num == 2) {
+                        Food food = new Food();
+                        ap.foods.add(food);
+                    }
                     col++;
                 }
                     if(col==ap.maxScreenCol){
