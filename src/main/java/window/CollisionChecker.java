@@ -1,7 +1,7 @@
 package window;
 
 import entity.Ant;
-
+import utils.Logger;
 import java.util.concurrent.Semaphore;
 
 public class CollisionChecker {
@@ -73,11 +73,11 @@ public class CollisionChecker {
         ant.isHome=home;
 
         if(ant.isHome) {
-            System.out.println("Ant " + ant.getID() + " is Home");
+            Logger.logSimulation("Ant " + ant.getID() + " is Home");
             if (ant.foundFood) {
                 reproduceSemaphore.acquire();
                 ap.reproducedCounter++;
-                System.out.println("Ant " + ant.getID() + " has reproduced");
+                Logger.logSimulation("Ant " + ant.getID() + " has reproduced");
                 reproduceSemaphore.release();
             }
             ant.foundFood = false;
@@ -86,7 +86,7 @@ public class CollisionChecker {
             if(!ant.foundFood) {
                 foodSemaphore.acquire();
                 ant.foundFood=true;
-                System.out.println("Ant " + ant.getID() + " has gotten food");
+                Logger.logSimulation("Ant " + ant.getID() + " has gotten food");
                 foodSemaphore.release();
             }
         }
