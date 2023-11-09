@@ -76,7 +76,7 @@ public class Tile_manager {
                     int num = Integer.parseInt(numbers[col]);
                     mapTileNum[col][row] = num;
                     if(num == 2) {
-                        Food food = new Food();
+                        Food food = new Food(col*ap.tileSize, row* ap.tileSize);
                         ap.foods.add(food);
                     }
                     col++;
