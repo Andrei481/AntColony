@@ -72,11 +72,11 @@ public class Tile_manager {
             while(col<ap.maxScreenCol&&row<ap.maxScreenRow){
                 String line=br.readLine();
                 while(col<ap.maxScreenCol) {
-                    String numbers[] = line.split(" ");
+                    String[] numbers = line.split(" ");
                     int num = Integer.parseInt(numbers[col]);
                     mapTileNum[col][row] = num;
                     if(num == 2) {
-                        Food food = new Food(col*ap.tileSize, row* ap.tileSize);
+                        Food food = new Food(col, row);
                         ap.foods.add(food);
                     }
                     col++;

@@ -27,6 +27,7 @@ public class Ant implements Runnable {
 //    private Pheromone[][] pheromoneGrid;
     private int startPosX,startPosY;
     private int nestPosX,nestPosY;
+    private int reproducedCounter;
 
     public Ant(Panel ap,int id) {
         this.id=id;
@@ -38,6 +39,19 @@ public class Ant implements Runnable {
         Random random = new Random();
         worldX = startPosX;
         worldY = startPosY;
+        this.reproducedCounter = 0;
+    }
+
+    public int[] getAntCoords() {
+        return new int[]{this.worldX, this.worldY};
+    }
+
+    public void reproduce() {
+        this.reproducedCounter++;
+    }
+
+    public int getReproducedCounter() {
+        return this.reproducedCounter;
     }
 
     public void depositPheromone(int prevX, int prevY) {

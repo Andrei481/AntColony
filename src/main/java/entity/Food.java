@@ -17,6 +17,17 @@ public class Food {
         Logger.logInfo("Food created ID: " + this.id);
     }
 
+    public int[] getFoodCoords() {
+        return new int[]{this.posX, this.posY};
+    }
+
+    public int getId() {
+        return id;
+    }
+    public int getQuantity() {
+        return this.quantity;
+    }
+
     public void decreaseQuantity() {
         this.quantity--;
     }

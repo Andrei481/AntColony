@@ -22,7 +22,7 @@ public class Panel extends JPanel implements Runnable {
     public final int maxScreenRow=100;
     public final int screenWidth=tileSize*maxScreenCol;
     public final int screenHeight=tileSize*maxScreenRow;
-    public int reproducedCounter;
+//    public int reproducedCounter;
     int FPS=60;
     public Tile_manager tile_manager=new Tile_manager(this);
     Thread GUIThread;
