@@ -3,6 +3,7 @@ package window;
 import entity.Ant;
 import entity.Food;
 import entity.Pheromone;
+import entity.Nest;
 import tile.Tile_manager;
 import utils.EvaporationThread;
 import utils.Logger;
@@ -28,11 +29,12 @@ public class Panel extends JPanel implements Runnable {
     private Semaphore foodSemaphore = new Semaphore(1);
     private Semaphore reproduceSemaphore = new Semaphore(1);
     public CollisionChecker col_checker=new CollisionChecker(this, foodSemaphore, reproduceSemaphore);
-    private ArrayList<Ant> ants = new ArrayList<>();
-    private ArrayList<Thread> threadList=new ArrayList<>();
+    public ArrayList<Ant> ants = new ArrayList<>();
+    public ArrayList<Thread> threadList=new ArrayList<>();
     public Pheromone[][] pheromoneGrid;
     private EvaporationThread evaporationThread;
     public ArrayList<Food> foods;
+    public Nest nest = new Nest();
 
     public Panel(){
         this.setPreferredSize(new Dimension(screenWidth,screenHeight));

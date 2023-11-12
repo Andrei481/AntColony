@@ -2,10 +2,15 @@ package window;
 
 import entity.Ant;
 import entity.Food;
+import entity.Nest;
 import utils.Logger;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Semaphore;
+
+import static java.lang.Thread.sleep;
 
 public class CollisionChecker {
     Panel ap;
@@ -76,13 +81,33 @@ public class CollisionChecker {
         int tolerance = 1;
 
         if(ant.isHome) {
-//            Logger.logSimulation("Ant " + ant.getID() + " is Home");
+            //Logger.logSimulation("Ant " + ant.getID() + " is Home");
             if (ant.foundFood) {
-                reproduceSemaphore.acquire();
+                //reproduceSemaphore.acquire();
+                if (!ant.sentReadySignal) {
+                    Set<Ant> antsReady = ap.nest.getAntsReady();
+                    if (antsReady.isEmpty()) {
+                        ap.nest.addAntReady(ant);
+                        ant.sentReadySignal = true;
+                    } else {
+                        Ant partnerAnt = antsReady.iterator().next();
+                        ap.nest.removeAntReady(partnerAnt);
+                        ant.foundFood = false;
+                        ant.reproduce();
+
+                        Ant babyAnt = new Ant(ap, ap.ants.size() + 1);
+                        ap.ants.add(babyAnt);
+                        Thread babyAntThread = new Thread(ap.ants.get(ap.ants.size() - 1));
+                        ap.threadList.add(babyAntThread);
+                        babyAntThread.start();
+                        Logger.logSimulation("Ant " + babyAnt.getID() + " has spawned");
+
+
+                    }
 //                Logger.logSimulation("Ant " + ant.getID() + " has reproduced");
-                reproduceSemaphore.release();
+                    //reproduceSemaphore.release();
+                }
             }
-            //ant.foundFood = false;
         }
 
         else if(food) {

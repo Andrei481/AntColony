@@ -22,6 +22,7 @@ public class Ant implements Runnable {
     public boolean collisionOn = false;
     public boolean foundFood=false;
     public boolean isHome=false;
+    public boolean sentReadySignal = false;
 
     Panel ap;
     private int actionLock = 0;
