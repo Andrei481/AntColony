@@ -1,5 +1,6 @@
 package entity;
 
+import utils.Logger;
 import window.Panel;
 
 import javax.imageio.ImageIO;

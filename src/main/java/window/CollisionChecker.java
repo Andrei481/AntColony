@@ -79,11 +79,10 @@ public class CollisionChecker {
 //            Logger.logSimulation("Ant " + ant.getID() + " is Home");
             if (ant.foundFood) {
                 reproduceSemaphore.acquire();
-//                ap.reproducedCounter++; // this is not ok, counter should be in Ant not Panel
 //                Logger.logSimulation("Ant " + ant.getID() + " has reproduced");
                 reproduceSemaphore.release();
             }
-            ant.foundFood = false;
+            //ant.foundFood = false;
         }
 
         else if(food) {
@@ -138,13 +137,12 @@ public class CollisionChecker {
                     int[] foodItemsCoords = foodItem.getFoodCoords();
 //                    Logger.logInfo("foodCoords = " + Arrays.toString(foodItemsCoords) + " | found food coords = " + Arrays.toString(foodCoords));
                     if (Arrays.equals(foodItemsCoords, foundFoodCoords))  {
-                        Logger.logInfo("Ant " + ant.getID() + " has gotten food " + foodItem.getId());
                         foodItem.decreaseQuantity();
-                        Logger.logInfo("Food " + foodItem.getId() + " left: " + foodItem.getQuantity());
+                        Logger.logSimulation("Ant " + ant.getID() + " has gotten food " + foodItem.getId() + ". Food " + foodItem.getId() + " left: " + foodItem.getQuantity());
                         if (foodItem.getQuantity() == 0) {
                             ap.foods.remove(foodItem);
                             ap.tile_manager.mapTileNum[x][y] = 0;
-                            Logger.logInfo("Food " + foodItem.getId() + " removed from the map.");
+                            Logger.logSimulation("Food " + foodItem.getId() + " removed from the map.");
                         }
                         break;
                     }

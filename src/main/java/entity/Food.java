@@ -14,7 +14,7 @@ public class Food {
         this.posY = posY;
         this.quantity = 5;
         this.id = ++idCounter;
-        Logger.logInfo("Food created ID: " + this.id);
+        Logger.logSimulation("Food created ID: " + this.id);
     }
 
     public int[] getFoodCoords() {
