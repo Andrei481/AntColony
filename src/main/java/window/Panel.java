@@ -79,6 +79,13 @@ public class Panel extends JPanel implements Runnable {
                 if(entry.getKey().isDead)
                     entry.getValue().interrupt();
             }
+            Iterator<Map.Entry<Ant,Thread>> iterator=threadMap.entrySet().iterator();
+            while(iterator.hasNext()){
+                Map.Entry<Ant,Thread> entry=iterator.next();
+                if(entry.getValue().isInterrupted()){
+                    iterator.remove();
+                }
+            }
             repaint();
             try{
                 double remainingTime=nextDrawTime-System.nanoTime();
