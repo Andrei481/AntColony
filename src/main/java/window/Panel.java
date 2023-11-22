@@ -10,7 +10,12 @@ import utils.Logger;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.Semaphore;
+
+import static java.lang.Thread.sleep;
 
 public class Panel extends JPanel implements Runnable {
 
@@ -35,6 +40,10 @@ public class Panel extends JPanel implements Runnable {
     private EvaporationThread evaporationThread;
     public ArrayList<Food> foods;
     public Nest nest = new Nest();
+    public int id=0;
+
+
+    public Map<Ant,Thread> threadMap=new HashMap<>();
 
     public Panel(){
         this.setPreferredSize(new Dimension(screenWidth,screenHeight));
@@ -44,10 +53,12 @@ public class Panel extends JPanel implements Runnable {
 
         int antNumber = 10;
         for(int i = 0; i < antNumber; i++) {
-            Ant ant = new Ant(this,i+1);
-            ants.add(ant);
-            threadList.add(new Thread(ants.get(ants.size()-1)));
-            Logger.logSimulation("Ant " + ant.getID() + " has spawned");
+            id++;
+            Ant ant = new Ant(this,id);
+            threadMap.put(ant,new Thread(ant));
+            //ants.add(ant);
+            //threadList.add(new Thread(ants.get(ants.size()-1)));
+            Logger.logSimulation("Ant " + ant.getID() + " has spawned"+java.lang.Thread.activeCount());
         }
         evaporationThread = new EvaporationThread(this.pheromoneGrid);
         evaporationThread.start();
@@ -58,19 +69,23 @@ public class Panel extends JPanel implements Runnable {
     public void run() {
         double drawInterval=1000000000/FPS;
         double nextDrawTime=System.nanoTime()+drawInterval;
-        for(Thread thread:threadList){
-            thread.start();
+        for(Map.Entry<Ant,Thread> entry:threadMap.entrySet()){
+            System.out.println(entry.getKey().getID()+" "+entry.getValue().getName());
+            entry.getValue().start();
         }
         while(GUIThread!=null){
             long currentTime=System.nanoTime();
-            //System.out.println("Threads used:"+java.lang.Thread.activeCount()+" FoodScore="+foodScore);
+            for(Map.Entry<Ant,Thread> entry:threadMap.entrySet()){
+                if(entry.getKey().isDead)
+                    entry.getValue().interrupt();
+            }
             repaint();
             try{
                 double remainingTime=nextDrawTime-System.nanoTime();
                 remainingTime=remainingTime/100000;
 
                 if (remainingTime<0){remainingTime=0;}
-                Thread.sleep((long)remainingTime);
+                sleep((long)remainingTime);
                 nextDrawTime+=drawInterval;
             }catch (InterruptedException e){e.printStackTrace();}
         }
@@ -87,8 +102,8 @@ public class Panel extends JPanel implements Runnable {
         super.paintComponent(g);
         Graphics2D g2=(Graphics2D) g;
         tile_manager.draw(g2);
-        for(Ant ant : ants) {
-            ant.draw(g2);
+        for(Map.Entry<Ant,Thread> entry:threadMap.entrySet()){
+            entry.getKey().draw(g2);
         }
         g2.dispose();
     }
