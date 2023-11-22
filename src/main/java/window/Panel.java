@@ -10,7 +10,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
-
+import com.rabbitmq.client.*;
 public class Panel extends JPanel implements Runnable {
 
     //screen settings
