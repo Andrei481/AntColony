@@ -1,7 +1,7 @@
 package entity;
 
 import utils.Logger;
-
+import window.Panel;
 import java.awt.*;
 
 public class Food {
@@ -9,12 +9,14 @@ public class Food {
     private int id;
     private int posX, posY;
     private static int idCounter = 0;
-    public Food(int posX, int posY) {
+    private Panel ap;
+    public Food(int posX, int posY, Panel ap) {
         this.posX = posX;
         this.posY = posY;
         this.quantity = 5;
         this.id = ++idCounter;
-        Logger.logInfo("Food created ID: " + this.id);
+        this.ap = ap;
+        Logger.logSimulation("Food created ID: " + this.id);
     }
 
     public int[] getFoodCoords() {
@@ -30,5 +32,6 @@ public class Food {
 
     public void decreaseQuantity() {
         this.quantity--;
+        if (quantity == 0) ap.updateBufferedMap();
     }
 }

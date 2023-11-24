@@ -1,6 +1,6 @@
 package entity;
 
-import tile.Tile;
+import tile.TileType;
 import window.Panel;
 
 import java.util.LinkedList;
@@ -16,7 +16,7 @@ public class AStarSearch{
         this.goalY=goalY;
         this.ap=ap;
     }
-    public LinkedList<Tile> search(Tile start, Tile goal){
+    public LinkedList<TileType> search(TileType start, TileType goal){
         return null;
     }
 

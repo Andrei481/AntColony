@@ -3,7 +3,8 @@ package window;
 import entity.Ant;
 import entity.Food;
 import entity.Pheromone;
-import tile.Tile_manager;
+import entity.Nest;
+import tile.TileManager;
 import utils.EvaporationThread;
 import utils.Logger;
 import javax.swing.*;
@@ -11,7 +12,9 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 import com.rabbitmq.client.*;
-public class Panel extends JPanel implements Runnable {
+import java.awt.image.BufferedImage;
+
+public class Panel extends JLayeredPane implements Runnable {
 
     //screen settings
     final int originalTileSize=10;
@@ -22,19 +25,19 @@ public class Panel extends JPanel implements Runnable {
     public final int maxScreenRow=100;
     public final int screenWidth=tileSize*maxScreenCol;
     public final int screenHeight=tileSize*maxScreenRow;
-//    public int reproducedCounter;
     int FPS=60;
-    public Tile_manager tile_manager=new Tile_manager(this);
+    public TileManager tile_manager=new TileManager(this);
     Thread GUIThread;
-    private Semaphore foodSemaphore = new Semaphore(1);
-    private Semaphore reproduceSemaphore = new Semaphore(1);
+    private final Semaphore foodSemaphore = new Semaphore(1);
+    private final Semaphore reproduceSemaphore = new Semaphore(1);
     public CollisionChecker col_checker=new CollisionChecker(this, foodSemaphore, reproduceSemaphore);
-    private ArrayList<Ant> ants = new ArrayList<>();
-    private ArrayList<Thread> threadList=new ArrayList<>();
+    public ArrayList<Ant> ants = new ArrayList<>();
+    public ArrayList<Thread> threadList=new ArrayList<>();
     public Pheromone[][] pheromoneGrid;
-    private EvaporationThread evaporationThread;
     public ArrayList<Food> foods;
-
+    public Nest nest = new Nest();
+    private BufferedImage bufferedMap;
+    private boolean mapUpdateNeeded = false;
     public Panel(){
         this.setPreferredSize(new Dimension(screenWidth,screenHeight));
         this.setBackground(Color.green);
@@ -48,15 +51,19 @@ public class Panel extends JPanel implements Runnable {
             threadList.add(new Thread(ants.get(ants.size()-1)));
             Logger.logSimulation("Ant " + ant.getID() + " has spawned");
         }
-        evaporationThread = new EvaporationThread(this.pheromoneGrid);
+        EvaporationThread evaporationThread = new EvaporationThread(this.pheromoneGrid);
         evaporationThread.start();
     }
 
 
     @Override
     public void run() {
-        double drawInterval=1000000000/FPS;
+        double drawInterval= (double) 1000000000 /FPS;
         double nextDrawTime=System.nanoTime()+drawInterval;
+        bufferedMap = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
+        tile_manager.draw((Graphics2D) bufferedMap.getGraphics());
+
+
         for(Thread thread:threadList){
             thread.start();
         }
@@ -82,13 +89,27 @@ public class Panel extends JPanel implements Runnable {
         Logger.logInfo("GUI started");
     }
 
-    public void paintComponent(Graphics g){
+    public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        Graphics2D g2=(Graphics2D) g;
-        tile_manager.draw(g2);
-        for(Ant ant : ants) {
+        Graphics2D g2 = (Graphics2D) g;
+
+        if (mapUpdateNeeded) {
+            /* Redraw the map tile by tile */
+            tile_manager.draw( (Graphics2D) bufferedMap.getGraphics() );
+            mapUpdateNeeded = false;
+        }
+        g2.drawImage(bufferedMap, 0, 0, this);  /* Draw the map from the previous frame (no changes) */
+
+        /* Make a copy of the ant list to avoid concurrency problems.
+         * e.g. ant spawns while we are drawing the ants */
+        ArrayList<Ant> antsBuffer = new ArrayList<>(ants);
+        for(Ant ant : antsBuffer) {
             ant.draw(g2);
         }
         g2.dispose();
+    }
+
+    public void updateBufferedMap() {
+        mapUpdateNeeded = true;
     }
 }

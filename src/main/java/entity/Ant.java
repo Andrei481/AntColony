@@ -1,5 +1,6 @@
 package entity;
 
+import helpers.PheromoneType;
 import window.Panel;
 
 import javax.imageio.ImageIO;
@@ -21,6 +22,7 @@ public class Ant implements Runnable {
     public boolean collisionOn = false;
     public boolean foundFood=false;
     public boolean isHome=false;
+    public boolean sentReadySignal = false;
 
     Panel ap;
     private int actionLock = 0;
@@ -193,21 +195,13 @@ public class Ant implements Runnable {
     }
 
     public void draw(Graphics2D g2) {
-        BufferedImage image = null;
-        switch (direction) {
-            case "up":
-                image = up;
-                break;
-            case "down":
-                image = down;
-                break;
-            case "left":
-                image = left;
-                break;
-            case "right":
-                image = right;
-                break;
-        }
+        BufferedImage image = switch (direction) {
+            case "up" -> up;
+            case "down" -> down;
+            case "left" -> left;
+            case "right" -> right;
+            default -> null;
+        };
 
         g2.drawImage(image, worldX, worldY, ap.tileSize * 2, ap.tileSize * 2, null);
 

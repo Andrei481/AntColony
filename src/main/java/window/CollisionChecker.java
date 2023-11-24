@@ -2,10 +2,15 @@ package window;
 
 import entity.Ant;
 import entity.Food;
+import entity.Nest;
 import utils.Logger;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Semaphore;
+
+import static java.lang.Thread.sleep;
 
 public class CollisionChecker {
     Panel ap;
@@ -76,14 +81,33 @@ public class CollisionChecker {
         int tolerance = 1;
 
         if(ant.isHome) {
-//            Logger.logSimulation("Ant " + ant.getID() + " is Home");
+            //Logger.logSimulation("Ant " + ant.getID() + " is Home");
             if (ant.foundFood) {
-                reproduceSemaphore.acquire();
-//                ap.reproducedCounter++; // this is not ok, counter should be in Ant not Panel
+                //reproduceSemaphore.acquire();
+                if (!ant.sentReadySignal) {
+                    Set<Ant> antsReady = ap.nest.getAntsReady();
+                    if (antsReady.isEmpty()) {
+                        ap.nest.addAntReady(ant);
+                        ant.sentReadySignal = true;
+                    } else {
+                        Ant partnerAnt = antsReady.iterator().next();
+                        ap.nest.removeAntReady(partnerAnt);
+                        ant.foundFood = false;
+                        ant.reproduce();
+
+                        Ant babyAnt = new Ant(ap, ap.ants.size() + 1);
+                        ap.ants.add(babyAnt);
+                        Thread babyAntThread = new Thread(ap.ants.get(ap.ants.size() - 1));
+                        ap.threadList.add(babyAntThread);
+                        babyAntThread.start();
+                        Logger.logSimulation("Ant " + babyAnt.getID() + " has spawned");
+
+
+                    }
 //                Logger.logSimulation("Ant " + ant.getID() + " has reproduced");
-                reproduceSemaphore.release();
+                    //reproduceSemaphore.release();
+                }
             }
-            ant.foundFood = false;
         }
 
         else if(food) {
@@ -138,13 +162,12 @@ public class CollisionChecker {
                     int[] foodItemsCoords = foodItem.getFoodCoords();
 //                    Logger.logInfo("foodCoords = " + Arrays.toString(foodItemsCoords) + " | found food coords = " + Arrays.toString(foodCoords));
                     if (Arrays.equals(foodItemsCoords, foundFoodCoords))  {
-                        Logger.logInfo("Ant " + ant.getID() + " has gotten food " + foodItem.getId());
                         foodItem.decreaseQuantity();
-                        Logger.logInfo("Food " + foodItem.getId() + " left: " + foodItem.getQuantity());
+                        Logger.logSimulation("Ant " + ant.getID() + " has gotten food " + foodItem.getId() + ". Food " + foodItem.getId() + " left: " + foodItem.getQuantity());
                         if (foodItem.getQuantity() == 0) {
                             ap.foods.remove(foodItem);
                             ap.tile_manager.mapTileNum[x][y] = 0;
-                            Logger.logInfo("Food " + foodItem.getId() + " removed from the map.");
+                            Logger.logSimulation("Food " + foodItem.getId() + " removed from the map.");
                         }
                         break;
                     }

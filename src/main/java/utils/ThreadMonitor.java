@@ -7,6 +7,7 @@ public class ThreadMonitor implements Runnable {
     @Override
     public void run() {
         int oldThreadCount = 0;
+        Logger.logInfo("Thread monitor started");
 
         while (true) {
             int currentThreadCount = Thread.activeCount();
@@ -26,7 +27,6 @@ public class ThreadMonitor implements Runnable {
     public static void launch() {
         Thread monitorThread = new Thread(new ThreadMonitor());
         monitorThread.start();
-        Logger.logInfo("Thread monitor started");
 
     }
 }
