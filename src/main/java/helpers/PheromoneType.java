@@ -1,7 +1,7 @@
-package entity;
+package helpers;
 
 public enum PheromoneType {
-    DEFAULT,
     FOOD,
     HOME,
 }
+
