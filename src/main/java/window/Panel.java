@@ -11,6 +11,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
+import com.rabbitmq.client.*;
 import java.awt.image.BufferedImage;
 
 public class Panel extends JLayeredPane implements Runnable {
