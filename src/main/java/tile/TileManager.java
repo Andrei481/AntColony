@@ -8,14 +8,19 @@ import java.awt.*;
 import java.io.*;
 import java.util.ArrayList;
 
-public class Tile_manager {
-    Panel ap;
-    public Tile[] tile;
-    public int[][] mapTileNum;
+/* This class is responsible for loading the map. A single instance is created in Panel.java.
+ * On creation, it draws the initial map.
+ * It also redraws the entire map every frame which I think is wasteful!
+ * TO DO: redraw only what is necessary! */
 
-    public Tile_manager(Panel ap){
+public class TileManager {
+    Panel ap;
+    public TileType[] tile;         /* Contains all available tile types: 0 = land, 1 = nest, 2 = food, 3 = wall */
+    public int[][] mapTileNum;  /* The tile map: a matrix that contains the type of each tile */
+
+    public TileManager(Panel ap){
         this.ap=ap;
-        tile=new Tile[4];
+        tile=new TileType[4];
         mapTileNum=new int[ap.maxScreenCol][ap.maxScreenRow];
         getTileImage();
         ap.foods = new ArrayList<>();
@@ -25,20 +30,20 @@ public class Tile_manager {
 
     public void getTileImage(){
         try{
-            tile[0]=new Tile();
+            tile[0]=new TileType();
             tile[0].image=ImageIO.read(new FileInputStream("res/tiles/land.png"));
 
-            tile[1]=new Tile();
+            tile[1]=new TileType();
             tile[1].image=ImageIO.read(new FileInputStream("res/tiles/nest.png"));
             tile[1].collision=false;
             tile[1].isHome=true;
 
-            tile[2]=new Tile();
+            tile[2]=new TileType();
             tile[2].image=ImageIO.read(new FileInputStream("res/tiles/food.png"));
             tile[2].collision=true;
             tile[2].isFood=true;
 
-            tile[3]=new Tile();
+            tile[3]=new TileType();
             tile[3].image=ImageIO.read(new FileInputStream("res/tiles/wall.png"));
             tile[3].collision=true;
         }catch(IOException e){e.printStackTrace();}
@@ -76,7 +81,7 @@ public class Tile_manager {
                     int num = Integer.parseInt(numbers[col]);
                     mapTileNum[col][row] = num;
                     if(num == 2) {
-                        Food food = new Food(col, row);
+                        Food food = new Food(col, row, ap);
                         ap.foods.add(food);
                     }
                     col++;
