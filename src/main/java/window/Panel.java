@@ -121,13 +121,11 @@ public class Panel extends JLayeredPane implements Runnable {
         }
         g2.drawImage(bufferedMap, 0, 0, this);  /* Draw the map from the previous frame (no changes) */
 
-        ///* Make a copy of the ant list to avoid concurrency problems.
-        // * e.g. ant spawns while we are drawing the ants */
-        //ArrayList<Ant> antsBuffer = new ArrayList<>(ants);
-        //for(Ant ant : antsBuffer) {
-        //    ant.draw(g2);
-          
-        for(Map.Entry<Ant,Thread> entry:threadMap.entrySet()){
+        /* Make a copy of the ant list (now hash map?) to avoid concurrency problems.
+         * e.g. ant spawns while we are drawing the ants */
+
+        Map<Ant,Thread> threadMapClone = new HashMap<>(threadMap);
+        for(Map.Entry<Ant,Thread> entry:threadMapClone.entrySet()){
             entry.getKey().draw(g2);          
         }
         g2.dispose();
