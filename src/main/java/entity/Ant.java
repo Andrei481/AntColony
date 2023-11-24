@@ -12,6 +12,9 @@ import java.util.Random;
 import static java.lang.Thread.sleep;
 
 public class Ant implements Runnable {
+
+    public boolean isDead=false;
+    private int deadCount=0;
     public int worldX, worldY;
     public int speed;
     private int id;
@@ -166,35 +169,51 @@ public class Ant implements Runnable {
     }
 
     public void update() throws InterruptedException {
-        int prevX = worldX;
-        int prevY = worldY;
-        setAction();
+        try {
+            if(!isHome)
+            {
+                if (deadCount == 5000) {
+                    isDead = true;
+
+                    throw new Exception("Ant " + this.id + " is dead");
+                }
+                deadCount++;
+            }
+
+            int prevX = worldX;
+            int prevY = worldY;
+            setAction();
 //        if(foundFood)
-        depositPheromone(prevX / ap.tileSize, prevY / ap.tileSize); // this will leave a pheromone behind each move
+            depositPheromone(prevX / ap.tileSize, prevY / ap.tileSize); // this will leave a pheromone behind each move
 //        for(int x=0;x<ap.maxScreenCol;x++){
 //            for(int y=0;y<ap.maxScreenRow;y++)
 //                if(ap.pheromoneGrid[x][y]!=null)
 //                    ap.pheromoneGrid[x][y].update();
 //            }
+        }catch (Exception e){
+
+        }
     }
 
     @Override
     public void run() {
-        while (true) {
+        while (!Thread.currentThread().isInterrupted()) {
             try {
                 update();
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
             try {
-                sleep(10);
+                Thread.sleep(10);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                //Thread.currentThread().interrupt();
+                //e.printStackTrace();
             }
         }
     }
 
     public void draw(Graphics2D g2) {
+      
         BufferedImage image = switch (direction) {
             case "up" -> up;
             case "down" -> down;
@@ -203,13 +222,15 @@ public class Ant implements Runnable {
             default -> null;
         };
 
-        g2.drawImage(image, worldX, worldY, ap.tileSize * 2, ap.tileSize * 2, null);
+        if(!isDead) {
+            g2.drawImage(image, worldX, worldY, ap.tileSize * 2, ap.tileSize * 2, null);
 
-        for (int i = 0; i < ap.maxScreenCol; i++) {
-            for (int j = 0; j < ap.maxScreenRow; j++) {
-                Pheromone pheromone = ap.pheromoneGrid[i][j];
-                if (pheromone != null) {
-                    pheromone.draw(g2);
+            for (int i = 0; i < ap.maxScreenCol; i++) {
+                for (int j = 0; j < ap.maxScreenRow; j++) {
+                    Pheromone pheromone = ap.pheromoneGrid[i][j];
+                    if (pheromone != null) {
+                        pheromone.draw(g2);
+                    }
                 }
             }
         }

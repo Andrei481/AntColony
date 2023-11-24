@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
 
+import static java.lang.Thread.currentThread;
 import static java.lang.Thread.sleep;
 
 public class CollisionChecker {
@@ -94,12 +95,14 @@ public class CollisionChecker {
                         ap.nest.removeAntReady(partnerAnt);
                         ant.foundFood = false;
                         ant.reproduce();
+                        ap.id++;
+                        Ant babyAnt = new Ant(ap, ap.id);
 
-                        Ant babyAnt = new Ant(ap, ap.ants.size() + 1);
-                        ap.ants.add(babyAnt);
-                        Thread babyAntThread = new Thread(ap.ants.get(ap.ants.size() - 1));
-                        ap.threadList.add(babyAntThread);
+                        //ap.ants.add(babyAnt);
+                        Thread babyAntThread = new Thread(babyAnt);
+                        //ap.threadList.add(babyAntThread);
                         babyAntThread.start();
+                        ap.threadMap.put(babyAnt,babyAntThread);
                         Logger.logSimulation("Ant " + babyAnt.getID() + " has spawned");
 
 
