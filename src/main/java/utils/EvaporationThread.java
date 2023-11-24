@@ -2,10 +2,10 @@ package utils;
 
 import entity.Pheromone;
 
-public class EvaporationThread extends Thread { // Extend Thread
-    private Pheromone[][] pheromoneGrid;
+public class EvaporationThread extends Thread {
+    private final Pheromone[][] pheromoneGrid;
     private boolean isRunning = true;
-    private int updateIntervalMillis = 2000;
+    private final int updateIntervalMillis = 2000;
 
     public EvaporationThread(Pheromone[][] pheromoneGrid) {
         this.pheromoneGrid = pheromoneGrid;

@@ -1,6 +1,6 @@
 package entity;
 
-import utils.Logger;
+import helpers.PheromoneType;
 import window.Panel;
 
 import javax.imageio.ImageIO;
@@ -213,21 +213,15 @@ public class Ant implements Runnable {
     }
 
     public void draw(Graphics2D g2) {
-        BufferedImage image = null;
-        switch (direction) {
-            case "up":
-                image = up;
-                break;
-            case "down":
-                image = down;
-                break;
-            case "left":
-                image = left;
-                break;
-            case "right":
-                image = right;
-                break;
-        }
+      
+        BufferedImage image = switch (direction) {
+            case "up" -> up;
+            case "down" -> down;
+            case "left" -> left;
+            case "right" -> right;
+            default -> null;
+        };
+
         if(!isDead) {
             g2.drawImage(image, worldX, worldY, ap.tileSize * 2, ap.tileSize * 2, null);
 
