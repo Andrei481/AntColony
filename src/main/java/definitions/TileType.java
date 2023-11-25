@@ -1,4 +1,4 @@
-package tile;
+package definitions;
 import java.awt.image.BufferedImage;
 
 /* This class contains the properties of a single tile type.

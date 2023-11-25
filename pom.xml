@@ -13,6 +13,7 @@
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+    <!-- REMINDER: Right click pom.xml - Maven - Reload project -->
     <dependencies>
         <!-- https://mvnrepository.com/artifact/com.rabbitmq/amqp-client -->
         <dependency>
@@ -20,6 +21,5 @@
             <artifactId>amqp-client</artifactId>
             <version>5.20.0</version>
         </dependency>
-
     </dependencies>
 </project>
