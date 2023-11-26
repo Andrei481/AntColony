@@ -39,7 +39,6 @@ public class Ant implements Runnable {
         solidArea = new Rectangle(0, 0, tileSize, tileSize);
         setDefaultValues();
         getAntSprites();
-        Random random = new Random();
         worldX = startPosX;
         worldY = startPosY;
         this.reproducedCounter = 0;
@@ -196,7 +195,7 @@ public class Ant implements Runnable {
                     Thread.sleep(100);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                e.printStackTrace();
+                System.err.println("Ant update error: " + e.getMessage());
             }
         }
     }

@@ -13,6 +13,7 @@ import java.util.concurrent.TimeoutException;
 public class StatisticsProvider {
 
     private static final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private static final boolean deleteMessagesOnExit = true;
     private static Channel channel;
 
     static {
@@ -28,7 +29,7 @@ public class StatisticsProvider {
     public static void sendMessage(SimulationEventType event, String message) {
         executorService.execute(() -> {
             try {
-                channel.queueDeclare(event.name(), false, false, false, null);
+                channel.queueDeclare(event.name(), false, deleteMessagesOnExit, false, null);
                 channel.basicPublish("", event.name(), false, null, message.getBytes());
             } catch (IOException e) {
                 System.err.println("Error sending message to RabbitMQ: " + e.getMessage());

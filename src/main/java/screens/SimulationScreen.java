@@ -14,7 +14,6 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
 
@@ -38,17 +37,12 @@ public class SimulationScreen extends JLayeredPane implements Runnable {
     public static Pheromone[][] pheromoneGrid;
     public static ArrayList<Food> foods;
     public static Nest nest = new Nest();
-    public static int id = 0;
+    public static int antIdCount = 0;
     public static Map<Ant, Thread> antThreadMap = new HashMap<>();
     private static Thread GUIThread;
     private static boolean mapUpdateNeeded = false;
     int FPS = 60;
     private BufferedImage bufferedMap;
-
-    /* Creates the frame (borders) of the application. */
-    private static void createAppWindow() {
-
-    }
 
     public static void launch() {
         SimulationScreen screen = new SimulationScreen();
@@ -80,10 +74,10 @@ public class SimulationScreen extends JLayeredPane implements Runnable {
 
         pheromoneGrid = new Pheromone[maxScreenCol][maxScreenRow];
 
-        int antNumber = 10;
-        for (int i = 0; i < antNumber; i++) {
-            id++;
-            Ant ant = new Ant(id);
+        int initialAntCount = 10;
+        for (int i = 0; i < initialAntCount; i++) {
+            antIdCount++;
+            Ant ant = new Ant(antIdCount);
             antThreadMap.put(ant, new Thread(ant));
             Logger.logSimulation(BIRTH, ant);
         }
@@ -104,13 +98,7 @@ public class SimulationScreen extends JLayeredPane implements Runnable {
                 if (entry.getKey().isDead)
                     entry.getValue().interrupt();
             }
-            Iterator<Map.Entry<Ant, Thread>> iterator = antThreadMap.entrySet().iterator();
-            while (iterator.hasNext()) {
-                Map.Entry<Ant, Thread> entry = iterator.next();
-                if (entry.getValue().isInterrupted()) {
-                    iterator.remove();
-                }
-            }
+            antThreadMap.entrySet().removeIf(entry -> entry.getValue().isInterrupted());
             repaint();
             try {
                 double remainingTime = nextDrawTime - System.nanoTime();
@@ -122,7 +110,7 @@ public class SimulationScreen extends JLayeredPane implements Runnable {
                 sleep((long) remainingTime);
                 nextDrawTime += drawInterval;
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                System.err.println("Screen drawing error: " + e.getMessage());
             }
         }
 

@@ -92,8 +92,8 @@ public class CollisionChecker {
                         nest.removeAntReady(partnerAnt);
                         ant.foundFood = false;
                         ant.reproduce();
-                        id++;
-                        Ant babyAnt = new Ant(id);
+                        antIdCount++;
+                        Ant babyAnt = new Ant(antIdCount);
                         Thread babyAntThread = new Thread(babyAnt);
                         babyAntThread.start();
                         antThreadMap.put(babyAnt, babyAntThread);
