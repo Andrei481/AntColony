@@ -12,7 +12,7 @@ import java.util.concurrent.TimeoutException;
 
 public class StatisticsProvider {
 
-    private static final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private static final ExecutorService providerThread = Executors.newSingleThreadExecutor();
     private static final boolean deleteMessagesOnExit = true;
     private static Channel channel;
 
@@ -27,7 +27,7 @@ public class StatisticsProvider {
     }
 
     public static void sendMessage(SimulationEventType event, String message) {
-        executorService.execute(() -> {
+        providerThread.execute(() -> {
             try {
                 channel.queueDeclare(event.name(), false, deleteMessagesOnExit, false, null);
                 channel.basicPublish("", event.name(), false, null, message.getBytes());

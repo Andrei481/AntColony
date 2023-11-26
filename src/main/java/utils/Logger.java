@@ -23,7 +23,7 @@ public class Logger {
     private static final String logFileName = logDirectoryName + "/latest.log";
     private static final String olderLogsDirectoryName = logDirectoryName + "/older";
     private static final String logFileDate = new SimpleDateFormat("yyyy_MM_dd-HH_mm_ss").format(new Date());
-    private static final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private static final ExecutorService loggerThread = Executors.newSingleThreadExecutor();
     // CONFIG
     private static boolean loggingEnabled;  // set in Main
 
@@ -103,13 +103,14 @@ public class Logger {
                     throw new IllegalStateException("Unexpected value when logging simulation food event: " + eventType);
         };
 
+        StatisticsProvider.sendMessage(eventType, message);
         log(" [SIMULATION] ", message);
     }
 
     private static void log(String level, String message) {
         if (!loggingEnabled) return;
 
-        executorService.execute(() -> {
+        loggerThread.execute(() -> {
             try (FileWriter fileWriter = new FileWriter(logFileName, true);
                  PrintWriter printWriter = new PrintWriter(fileWriter)) {
                 String logContent = new SimpleDateFormat("HH:mm:ss").format(new Date()) + level + message;
