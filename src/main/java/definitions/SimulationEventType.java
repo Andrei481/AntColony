@@ -1,5 +1,6 @@
 package definitions;
 
+/* Keep up to date with the secondary app */
 public enum SimulationEventType {
     BIRTH,
     MEAL,
