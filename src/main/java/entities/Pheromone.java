@@ -1,19 +1,18 @@
-package entity;
+package entities;
 
-import helpers.PheromoneType;
-import static helpers.PheromoneColors.*;
+import definitions.PheromoneType;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
+import java.awt.*;
+
+import static definitions.PheromoneColors.pheromoneColor;
 
 public class Pheromone {
     private final int x;
     private final int y;
+    private final PheromoneType type;
     private Color color;    /* red for food and blue for home */
     private int level;      /* starts at 3 (strongest) and gradually decrements */
-    private final PheromoneType type;   /* there are 2 types:
-                                         * looking for FOOD (O)
-                                         * going HOME (1)       */
+
     public Pheromone(int x, int y, PheromoneType type) {
         this.x = x;
         this.y = y;

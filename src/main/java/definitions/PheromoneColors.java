@@ -1,4 +1,4 @@
-package helpers;
+package definitions;
 
 import java.awt.Color;
 

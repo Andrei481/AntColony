@@ -1,11 +1,11 @@
-package utils;
+package simulation;
 
-import entity.Pheromone;
+import entities.Pheromone;
 
 public class EvaporationThread extends Thread {
     private final Pheromone[][] pheromoneGrid;
-    private boolean isRunning = true;
     private final int updateIntervalMillis = 2000;
+    private boolean isRunning = true;
 
     public EvaporationThread(Pheromone[][] pheromoneGrid) {
         this.pheromoneGrid = pheromoneGrid;
@@ -14,9 +14,8 @@ public class EvaporationThread extends Thread {
     @Override
     public void run() {
         while (isRunning) {
-            for (int x = 0; x < pheromoneGrid.length; x++) {
-                for (int y = 0; y < pheromoneGrid[x].length; y++) {
-                    Pheromone pheromone = pheromoneGrid[x][y];
+            for (Pheromone[] pheromones : pheromoneGrid) {
+                for (Pheromone pheromone : pheromones) {
                     if (pheromone != null) {
                         pheromone.evaporate();
                     }
