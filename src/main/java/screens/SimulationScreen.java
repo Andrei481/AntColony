@@ -129,6 +129,7 @@ public class SimulationScreen extends JLayeredPane implements Runnable {
 
         /* Make a copy of the ant list (now hash map?) to avoid concurrency problems.
          * e.g. ant spawns while we are drawing the ants */
+        // TO DO: Find better solution
 
         Map<Ant, Thread> threadMapClone = new HashMap<>(antThreadMap);
         for (Map.Entry<Ant, Thread> entry : threadMapClone.entrySet()) {

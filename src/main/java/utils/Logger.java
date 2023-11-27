@@ -79,6 +79,7 @@ public class Logger {
         if (!simulationLoggingEnabled) return;
 
         String message = "Ant " + ant.getId() + switch (eventType) {
+            // TO DO: Use JSON messages
             case BIRTH -> " has spawned.";
             case MEAL -> " has eaten.";
             case REPRODUCTION -> " has reproduced.";
