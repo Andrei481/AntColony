@@ -13,8 +13,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
 
 import static definitions.SimulationEventType.BIRTH;
@@ -38,7 +38,7 @@ public class SimulationScreen extends JLayeredPane implements Runnable {
     public static ArrayList<Food> foods;
     public static Nest nest = new Nest();
     public static int antIdCount = 0;
-    public static Map<Ant, Thread> antThreadMap = new HashMap<>();
+    public static Map<Ant, Thread> antThreadMap = new ConcurrentHashMap<>();
     private static Thread GUIThread;
     private static boolean mapUpdateNeeded = false;
     int FPS = 60;
@@ -90,6 +90,8 @@ public class SimulationScreen extends JLayeredPane implements Runnable {
         bufferedMap = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
         tile_manager.draw((Graphics2D) bufferedMap.getGraphics());
 
+
+        /* Start ant threads */
         for (Map.Entry<Ant, Thread> entry : antThreadMap.entrySet()) {
             entry.getValue().start();
         }
@@ -127,12 +129,12 @@ public class SimulationScreen extends JLayeredPane implements Runnable {
         }
         g2.drawImage(bufferedMap, 0, 0, this);  /* Draw the map from the previous frame (no changes) */
 
-        /* Make a copy of the ant list (now hash map?) to avoid concurrency problems.
-         * e.g. ant spawns while we are drawing the ants */
-        // TO DO: Find better solution
+        /* Draw every ant */
 
-        Map<Ant, Thread> threadMapClone = new HashMap<>(antThreadMap);
-        for (Map.Entry<Ant, Thread> entry : threadMapClone.entrySet()) {
+        /* antThreadMap is now a ConcurrentHashMap to avoid concurrency problems
+         * e.g. ant spawns while we are drawing the ants */
+
+        for (Map.Entry<Ant, Thread> entry : antThreadMap.entrySet()) {
             entry.getKey().draw(g2);
         }
         g2.dispose();
