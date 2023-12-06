@@ -36,7 +36,28 @@ public class CollisionChecker {
         boolean collision = false;
         boolean food = false;
         boolean home = false;
+        int visionRadius = ant.visionRadius;
+        int antCol = ant.worldX / tileSize;
+        int antRow = ant.worldY / tileSize;
         int[] foundFoodLocation;
+
+        for (int i = antCol - visionRadius; i <= antCol + visionRadius; i++) {
+            for (int j = antRow - visionRadius; j <= antRow + visionRadius; j++) {
+                // Check if the indices are within bounds
+                if (i >= 0 && i < tile_manager.mapTileNum.length && j >= 0 && j < tile_manager.mapTileNum[0].length) {
+                    int tileNum = tile_manager.mapTileNum[i][j];
+
+                    // Check if the tile contains a food entity
+                    if (tile_manager.tile[tileNum].isFood) {
+                        // Food entity found within vision radius
+                        // You can add your logic here, such as updating the ant's state or taking some action
+                        ant.detectedFoodCoords = new int[]{i, j};
+                        Logger.logInfo("Food found within vision radius for Ant " + ant.getID() + " at coordinates: " + Arrays.toString(ant.detectedFoodCoords));
+                    }
+                }
+            }
+        }
+
         if (entityLeftCol >= 0 && entityRightCol >= 0 &&
 
                 entityLeftCol < tile_manager.mapTileNum.length &&
@@ -80,7 +101,7 @@ public class CollisionChecker {
 
         if (ant.isHome) {
             //Logger.logSimulation("Ant " + ant.getID() + " is Home");
-            if (ant.foundFood) {
+            if (ant.gotFood) {
                 //reproduceSemaphore.acquire();
                 if (!ant.sentReadySignal) {
                     Set<Ant> antsReady = nest.getAntsReady();
@@ -90,7 +111,7 @@ public class CollisionChecker {
                     } else {
                         Ant partnerAnt = antsReady.iterator().next();
                         nest.removeAntReady(partnerAnt);
-                        ant.foundFood = false;
+                        ant.gotFood = false;
                         ant.reproduce();
                         antIdCount++;
                         Ant babyAnt = new Ant(antIdCount);
@@ -144,11 +165,12 @@ public class CollisionChecker {
             }
             foundFoodLocation = new int[]{x, y};
 
-            if (!ant.foundFood) {
+            if (!ant.gotFood) {
                 foodSemaphore.acquire();
                 for (Food foodItem : foods) {
                     int[] foodItemsLocation = foodItem.getFoodLocation();
                     if (Arrays.equals(foodItemsLocation, foundFoodLocation)) {
+                        Logger.logInfo("Got food at location: " + Arrays.toString(foodItemsLocation));
                         foodItem.decreaseQuantity();
                         Logger.logSimulation(MEAL, ant);
                         if (foodItem.getQuantity() == 0) {
@@ -159,7 +181,7 @@ public class CollisionChecker {
                         break;
                     }
                 }
-                ant.foundFood = true;
+                ant.gotFood = true;
 //                Logger.logSimulation("Ant " + ant.getID() + " has gotten food");
                 foodSemaphore.release();
             }

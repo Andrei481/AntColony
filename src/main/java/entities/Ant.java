@@ -26,13 +26,18 @@ public class Ant implements Runnable {
     public Direction direction;
     public Rectangle solidArea;
     public boolean collisionOn = false;
-    public boolean foundFood = false;
+    public boolean gotFood = false;
     public boolean isHome = false;
     public boolean sentReadySignal = false;
     private int deadCount = 0;
     private int startPosX, startPosY;
     private int nestPosX, nestPosY;
     private int reproducedCounter;
+    public int visionRadius = 20;
+    public int[] detectedFoodCoords = new int[]{-1,-1};
+    public int[] detectedHomeCoords = new int[]{-1,-1};
+
+
 
     public Ant(int id) {
         this.id = id;
@@ -51,6 +56,8 @@ public class Ant implements Runnable {
     public void reproduce() {
         this.reproducedCounter++;
         Logger.logSimulation(REPRODUCTION, this);
+        detectedFoodCoords = new int[]{-1,-1};
+        detectedHomeCoords = new int[]{-1,-1};
     }
 
     public int getReproducedCounter() {
@@ -60,7 +67,7 @@ public class Ant implements Runnable {
     private void depositPheromone(int prevX, int prevY) {
         if (prevX >= 0 && prevX < maxScreenCol && prevY >= 0 && prevY < maxScreenRow) {
             Pheromone pheromone;
-            if (foundFood)
+            if (gotFood)
                 pheromone = new Pheromone(prevX * tileSize, prevY * tileSize, PheromoneType.HOME);
             else
                 pheromone = new Pheromone(prevX * tileSize, prevY * tileSize, PheromoneType.FOOD);
@@ -89,41 +96,49 @@ public class Ant implements Runnable {
     }
 
     private void setAction() throws InterruptedException {
-
-        if (!foundFood) {
-            Random random = new Random();
-            int random_dir = random.nextInt(125);
-            if (random_dir < 25) {
-                direction = UP;
-            } else if (random_dir < 50) {
-                direction = DOWN;
-            } else if (random_dir < 75) {
-                direction = LEFT;
-            } else {
-                direction = RIGHT;
+        if (!gotFood) {
+            if (this.detectedFoodCoords[0] >= 0 && this.detectedFoodCoords[1] >= 0) {
+                int foodX = detectedFoodCoords[0] * tileSize;
+                int foodY = detectedFoodCoords[1] * tileSize;
+                collisionOn = true;
+                // Move towards the detected food
+                moveToPosition(foodX, foodY);
             }
-            // Check collision
-            collisionOn = false;
-            col_checker.checkTile(this);
-            // if collision = false, can move
-            if (!collisionOn) {
-                switch (direction) {
-                    case UP:
-                        worldY -= speed;
-                        break;
-                    case DOWN:
-                        worldY += speed;
-                        break;
-                    case LEFT:
-                        worldX -= speed;
-                        break;
-                    case RIGHT:
-                        worldX += speed;
-                        break;
+            else {
+                Random random = new Random();
+                int random_dir = random.nextInt(125);
+                if (random_dir < 25) {
+                    direction = UP;
+                } else if (random_dir < 50) {
+                    direction = DOWN;
+                } else if (random_dir < 75) {
+                    direction = LEFT;
+                } else {
+                    direction = RIGHT;
                 }
+                // Check collision
+                collisionOn = false;
+                col_checker.checkTile(this);
+                // if collision = false, can move
+                if (!collisionOn) {
+                    switch (direction) {
+                        case UP:
+                            worldY -= speed;
+                            break;
+                        case DOWN:
+                            worldY += speed;
+                            break;
+                        case LEFT:
+                            worldX -= speed;
+                            break;
+                        case RIGHT:
+                            worldX += speed;
+                            break;
+                    }
+                }
+
             }
         } else {
-
             collisionOn = false;
             if (worldX > nestPosX) {
                 direction = LEFT;
@@ -158,6 +173,56 @@ public class Ant implements Runnable {
         }
 
 
+    }
+
+
+    public void moveRandomly() throws InterruptedException {
+        Random random = new Random();
+        int random_dir = random.nextInt(125);
+        if (random_dir < 25) {
+            direction = UP;
+        } else if (random_dir < 50) {
+            direction = DOWN;
+        } else if (random_dir < 75) {
+            direction = LEFT;
+        } else {
+            direction = RIGHT;
+        }
+    }
+
+    public void moveToPosition(int x, int y) throws InterruptedException {
+        col_checker.checkTile(this);
+
+        if (worldX > x) {
+            direction = Direction.LEFT;
+        } else if (worldX < x) {
+            direction = Direction.RIGHT;
+        } else if (worldY > y) {
+            direction = Direction.UP;
+        } else if (worldY < y) {
+            direction = Direction.DOWN;
+        }
+
+        if (!collisionOn) {
+            moveBasedOnDirection();
+        }
+    }
+
+    private void moveBasedOnDirection() {
+        switch (direction) {
+            case UP:
+                worldY -= speed;
+                break;
+            case DOWN:
+                worldY += speed;
+                break;
+            case LEFT:
+                worldX -= speed;
+                break;
+            case RIGHT:
+                worldX += speed;
+                break;
+        }
     }
 
     private void update() throws InterruptedException {
@@ -224,6 +289,10 @@ public class Ant implements Runnable {
     }
 
     public int getId() {
+        return this.id;
+    }
+
+    public int getID() {
         return this.id;
     }
 }
