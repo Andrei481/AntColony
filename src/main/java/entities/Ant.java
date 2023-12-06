@@ -35,7 +35,7 @@ public class Ant implements Runnable {
     private int reproducedCounter;
     public int visionRadius = 20;
     public int[] detectedFoodCoords = new int[]{-1,-1};
-    public int[] detectedHomeCoords = new int[]{-1,-1};
+    private boolean nestDetected = false;
 
 
 
@@ -57,7 +57,6 @@ public class Ant implements Runnable {
         this.reproducedCounter++;
         Logger.logSimulation(REPRODUCTION, this);
         detectedFoodCoords = new int[]{-1,-1};
-        detectedHomeCoords = new int[]{-1,-1};
     }
 
     public int getReproducedCounter() {
@@ -139,35 +138,70 @@ public class Ant implements Runnable {
 
             }
         } else {
-            collisionOn = false;
-            if (worldX > nestPosX) {
-                direction = LEFT;
-                col_checker.checkTile(this);
-                if (!collisionOn) {
-                    worldX -= speed;
-                    return;
+            if(nestDetected) {
+                collisionOn = false;
+                if (worldX > nestPosX) {
+                    direction = LEFT;
+                    col_checker.checkTile(this);
+                    if (!collisionOn) {
+                        worldX -= speed;
+                        return;
+                    }
                 }
-            }
-            if (worldX < nestPosX) {
-                direction = RIGHT;
-                col_checker.checkTile(this);
-                if (!collisionOn) {
-                    worldX += speed;
-                    return;
+                if (worldX < nestPosX) {
+                    direction = RIGHT;
+                    col_checker.checkTile(this);
+                    if (!collisionOn) {
+                        worldX += speed;
+                        return;
+                    }
                 }
-            }
 
-            if (worldY > nestPosY) {
-                direction = UP;
-                col_checker.checkTile(this);
-                if (!collisionOn) {
-                    worldY -= speed;
-                    return;
+                if (worldY > nestPosY) {
+                    direction = UP;
+                    col_checker.checkTile(this);
+                    if (!collisionOn) {
+                        worldY -= speed;
+                        return;
+                    }
+                }
+                if (worldY < nestPosY) {
+                    direction = DOWN;
+                    worldY += speed;
                 }
             }
-            if (worldY < nestPosY) {
-                direction = DOWN;
-                worldY += speed;
+            else {
+                Random random = new Random();
+                int random_dir = random.nextInt(125);
+                if (random_dir < 25) {
+                    direction = UP;
+                } else if (random_dir < 50) {
+                    direction = DOWN;
+                } else if (random_dir < 75) {
+                    direction = RIGHT;
+                } else {
+                    direction = LEFT;
+                }
+                // Check collision
+                collisionOn = false;
+                col_checker.checkTile(this);
+                // if collision = false, can move
+                if (!collisionOn) {
+                    switch (direction) {
+                        case UP:
+                            worldY -= speed;
+                            break;
+                        case DOWN:
+                            worldY += speed;
+                            break;
+                        case LEFT:
+                            worldX -= speed;
+                            break;
+                        case RIGHT:
+                            worldX += speed;
+                            break;
+                    }
+                }
             }
             //System.out.println("Ant " + id +foundFood+isHome+ " has found food, is going "+direction);
         }
@@ -291,8 +325,12 @@ public class Ant implements Runnable {
     public int getId() {
         return this.id;
     }
-
-    public int getID() {
-        return this.id;
+    public int[] getNestCoordinates() {
+        return new int[]{nestPosX, nestPosY};
     }
+
+    public void setNestDetected() {
+        this.nestDetected = true;
+    }
+
 }

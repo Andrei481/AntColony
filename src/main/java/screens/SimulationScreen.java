@@ -44,6 +44,7 @@ public class SimulationScreen extends JLayeredPane implements Runnable {
     int FPS = 60;
     private BufferedImage bufferedMap;
 
+
     public static void launch() {
         SimulationScreen screen = new SimulationScreen();
 
