@@ -34,7 +34,7 @@ public class Ant implements Runnable {
     private int startPosX, startPosY;
     private int nestPosX, nestPosY;
     private int reproducedCounter;
-    public int visionRadius = 20;
+    public int visionRadius = 10;
     public int[] detectedFoodCoords = new int[]{-1,-1};
     private boolean nestDetected = false;
     public int[] detectedHomePheromones = new int[]{-1,-1};
@@ -101,6 +101,7 @@ public class Ant implements Runnable {
     }
 
     private void setAction() throws InterruptedException {
+//        Logger.logInfo("Ant " + id + " position: " + worldX/tileSize + " " + worldY/tileSize);
         if (!gotFood) {
             if (this.detectedFoodCoords[0] >= 0 && this.detectedFoodCoords[1] >= 0&&tile_manager.mapTileNum[detectedFoodCoords[0]][detectedFoodCoords[1]]==2) {
 
@@ -108,9 +109,21 @@ public class Ant implements Runnable {
                 int foodY = detectedFoodCoords[1] * tileSize;
                 //System.out.println("ant found food:"+id+"\n food cords:"+foodX+" "+foodY);
                 collisionOn = true;
+                Logger.logInfo("Ant " + id + " following food");
                 moveToPosition(foodX, foodY);
 //                col_checker.checkTile(this);
             }
+            else if(this.detectedHomePheromones[0] >= 0 && this.detectedHomePheromones[1] >= 0 && !isPheromoneDepleted(detectedHomePheromones[0], detectedHomePheromones[1]) && detectedHomePheromones[0] > worldX/tileSize && detectedHomePheromones[1] > worldY/tileSize) {
+                int pheromoneX = detectedHomePheromones[0] * tileSize;
+                int pheromoneY = detectedHomePheromones[1] * tileSize;
+                Logger.logInfo("Ant " + id + " following home pheromone");
+                moveToPosition(pheromoneX, pheromoneY);
+            }
+//            else if(this.detectedFoodPheromones[0] >= 0 && this.detectedFoodPheromones[1] >= 0 && !isPheromoneDepleted(detectedFoodPheromones[0], detectedFoodPheromones[1]) && detectedFoodPheromones[0] > worldX/tileSize && detectedHomePheromones[1] > worldY/tileSize) {
+//                int pheromoneX = detectedFoodPheromones[0] * tileSize;
+//                int pheromoneY = detectedFoodPheromones[1] * tileSize;
+//                moveToPosition(pheromoneX, pheromoneY);
+//            }
             else {
                 Random random = new Random();
                 int random_dir = random.nextInt(125);
@@ -178,16 +191,18 @@ public class Ant implements Runnable {
                     worldY += speed;
                 }
             }
-            else if(this.detectedFoodPheromones[0] >= 0 && this.detectedFoodPheromones[1] >= 0 && !isPheromoneDepleted(detectedFoodPheromones[0], detectedFoodPheromones[1]) && detectedFoodPheromones[0] < worldX && detectedFoodPheromones[1] < worldY) {
+            else if(this.detectedFoodPheromones[0] >= 0 && this.detectedFoodPheromones[1] >= 0 && !isPheromoneDepleted(detectedFoodPheromones[0], detectedFoodPheromones[1]) && detectedFoodPheromones[0] < worldX/tileSize && detectedFoodPheromones[1] < worldY/tileSize) {
                 int pheromoneX = detectedFoodPheromones[0] * tileSize;
                 int pheromoneY = detectedFoodPheromones[1] * tileSize;
+                Logger.logInfo("Ant " + id + " following food pheromone");
+
                 moveToPosition(pheromoneX, pheromoneY);
             }
-            else if(this.detectedHomePheromones[0] >= 0 && this.detectedHomePheromones[1] >= 0 && !isPheromoneDepleted(detectedHomePheromones[0], detectedHomePheromones[1]) && detectedHomePheromones[0] < worldX && detectedHomePheromones[1] < worldY) {
-                int pheromoneX = detectedHomePheromones[0] * tileSize;
-                int pheromoneY = detectedHomePheromones[1] * tileSize;
-                moveToPosition(pheromoneX, pheromoneY);
-            }
+//            else if(this.detectedHomePheromones[0] >= 0 && this.detectedHomePheromones[1] >= 0 && !isPheromoneDepleted(detectedHomePheromones[0], detectedHomePheromones[1]) && detectedHomePheromones[0] < worldX/tileSize && detectedHomePheromones[1] < worldY/tileSize) {
+//                int pheromoneX = detectedHomePheromones[0] * tileSize;
+//                int pheromoneY = detectedHomePheromones[1] * tileSize;
+//                moveToPosition(pheromoneX, pheromoneY);
+//            }
             else {
                 Random random = new Random();
                 int random_dir = random.nextInt(125);

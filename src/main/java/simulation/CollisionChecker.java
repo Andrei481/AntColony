@@ -43,44 +43,34 @@ public class CollisionChecker {
         int antRow = ant.worldY / tileSize;
         int[] foundFoodLocation;
 
-        if(!ant.gotFood) {
-            for (int i = antCol - visionRadius; i <= antCol + visionRadius; i++) {
-                for (int j = antRow - visionRadius; j <= antRow + visionRadius; j++) {
-                    if (i >= 0 && i < tile_manager.mapTileNum.length && j >= 0 && j < tile_manager.mapTileNum[0].length) {
-                        int tileNum = tile_manager.mapTileNum[i][j];
+        for (int i = antCol - visionRadius; i <= antCol + visionRadius; i++) {
+            for (int j = antRow - visionRadius; j <= antRow + visionRadius; j++) {
+                if (i >= 0 && i < tile_manager.mapTileNum.length && j >= 0 && j < tile_manager.mapTileNum[0].length) {
+                    int tileNum = tile_manager.mapTileNum[i][j];
+                    if(!ant.gotFood) {
                         if (tile_manager.tile[tileNum].isFood) {
                             ant.detectedFoodCoords = new int[]{i, j};
-                            Logger.logInfo("Food found within vision radius for Ant " + ant.getId() + " at coordinates: " + Arrays.toString(ant.detectedFoodCoords));
-                        }
-//                        if (pheromoneGrid[i][j] != null && pheromoneGrid[i][j].getType() == PheromoneType.HOME) {
-//                            ant.detectedHomePheromones = new int[]{i,j};
-//                            Logger.logInfo("Home pheromone found within vision radius for Ant " + ant.getId() + " at coordinates: " + Arrays.toString(ant.detectedFoodCoords));
-//                        }
-                    }
-                }
-            }
-        }
-        if(ant.gotFood) {
-            for (int i = antCol - visionRadius; i <= antCol + visionRadius; i++) {
-                for (int j = antRow - visionRadius; j <= antRow + visionRadius; j++) {
-                    if (i >= 0 && i < tile_manager.mapTileNum.length && j >= 0 && j < tile_manager.mapTileNum[0].length) {
-                        int tileNum = tile_manager.mapTileNum[i][j];
-                        if (tile_manager.tile[tileNum].isHome) {
-                            ant.setNestDetected();
-                            Logger.logInfo("Nest found within vision radius for Ant " + ant.getId() + " at coordinates: " + Arrays.toString(ant.detectedFoodCoords));
-                        }
-                        if (pheromoneGrid[i][j] != null && pheromoneGrid[i][j].getType() == PheromoneType.FOOD && pheromoneGrid[i][j].getAntId() != ant.getId()) {
-                            ant.detectedFoodPheromones = new int[]{i,j};
-                            Logger.logInfo("Food pheromone found within vision radius for Ant " + ant.getId() + " at coordinates: " + Arrays.toString(ant.detectedFoodPheromones));
+//                          Logger.logInfo("Food found within vision radius for Ant " + ant.getId() + " at coordinates: " + Arrays.toString(ant.detectedFoodCoords));
                         }
                         if (pheromoneGrid[i][j] != null && pheromoneGrid[i][j].getType() == PheromoneType.HOME && pheromoneGrid[i][j].getAntId() != ant.getId()) {
                             ant.detectedHomePheromones = new int[]{i,j};
-                            Logger.logInfo("Home pheromone found within vision radius for Ant " + ant.getId() + " at coordinates: " + Arrays.toString(ant.detectedHomePheromones));
+//                            Logger.logInfo("Home pheromone found within vision radius for Ant " + ant.getId() + " at coordinates: " + Arrays.toString(ant.detectedHomePheromones));
+                        }
+                    }
+                    else {
+                        if (tile_manager.tile[tileNum].isHome) {
+                            ant.setNestDetected();
+//                            Logger.logInfo("Nest found within vision radius for Ant " + ant.getId() + " at coordinates: " + Arrays.toString(ant.detectedFoodCoords));
+                        }
+                        if (pheromoneGrid[i][j] != null && pheromoneGrid[i][j].getType() == PheromoneType.FOOD && pheromoneGrid[i][j].getAntId() != ant.getId()) {
+                            ant.detectedFoodPheromones = new int[]{i,j};
+//                            Logger.logInfo("Food pheromone found within vision radius for Ant " + ant.getId() + " at coordinates: " + Arrays.toString(ant.detectedFoodPheromones));
                         }
                     }
                 }
             }
         }
+//        }
 
         if (entityLeftCol >= 0 && entityRightCol >= 0 &&
 

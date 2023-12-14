@@ -15,7 +15,7 @@ public class Food {
     public Food(int posX, int posY) {
         this.posX = posX;
         this.posY = posY;
-        this.quantity = 1;
+        this.quantity = 5;
         this.id = ++idCounter;
         Logger.logSimulation(FOOD_CREATED, this);
     }
