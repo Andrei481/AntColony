@@ -102,9 +102,11 @@ public class Ant implements Runnable {
 
     private void setAction() throws InterruptedException {
         if (!gotFood) {
-            if (this.detectedFoodCoords[0] >= 0 && this.detectedFoodCoords[1] >= 0) {
+            if (this.detectedFoodCoords[0] >= 0 && this.detectedFoodCoords[1] >= 0&&tile_manager.mapTileNum[detectedFoodCoords[0]][detectedFoodCoords[1]]==2) {
+
                 int foodX = detectedFoodCoords[0] * tileSize;
                 int foodY = detectedFoodCoords[1] * tileSize;
+                //System.out.println("ant found food:"+id+"\n food cords:"+foodX+" "+foodY);
                 collisionOn = true;
                 moveToPosition(foodX, foodY);
 //                col_checker.checkTile(this);
