@@ -10,6 +10,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Random;
 
 import static definitions.Direction.*;
@@ -36,6 +37,8 @@ public class Ant implements Runnable {
     public int visionRadius = 20;
     public int[] detectedFoodCoords = new int[]{-1,-1};
     private boolean nestDetected = false;
+    public int[] detectedHomePheromones = new int[]{-1,-1};
+    public int[] detectedFoodPheromones = new int[]{-1,-1};
 
 
 
@@ -57,6 +60,9 @@ public class Ant implements Runnable {
         this.reproducedCounter++;
         Logger.logSimulation(REPRODUCTION, this);
         detectedFoodCoords = new int[]{-1,-1};
+        nestDetected = false;
+        detectedHomePheromones = new int[]{-1,-1};
+        detectedFoodPheromones = new int[]{-1, -1};
     }
 
     public int getReproducedCounter() {
@@ -67,9 +73,9 @@ public class Ant implements Runnable {
         if (prevX >= 0 && prevX < maxScreenCol && prevY >= 0 && prevY < maxScreenRow) {
             Pheromone pheromone;
             if (gotFood)
-                pheromone = new Pheromone(prevX * tileSize, prevY * tileSize, PheromoneType.HOME);
+                pheromone = new Pheromone(prevX * tileSize, prevY * tileSize, PheromoneType.HOME, this.id);
             else
-                pheromone = new Pheromone(prevX * tileSize, prevY * tileSize, PheromoneType.FOOD);
+                pheromone = new Pheromone(prevX * tileSize, prevY * tileSize, PheromoneType.FOOD, this.id);
             pheromoneGrid[prevX][prevY] = pheromone;
         }
     }
@@ -100,8 +106,8 @@ public class Ant implements Runnable {
                 int foodX = detectedFoodCoords[0] * tileSize;
                 int foodY = detectedFoodCoords[1] * tileSize;
                 collisionOn = true;
-                // Move towards the detected food
                 moveToPosition(foodX, foodY);
+//                col_checker.checkTile(this);
             }
             else {
                 Random random = new Random();
@@ -169,6 +175,16 @@ public class Ant implements Runnable {
                     direction = DOWN;
                     worldY += speed;
                 }
+            }
+            else if(this.detectedFoodPheromones[0] >= 0 && this.detectedFoodPheromones[1] >= 0 && !isPheromoneDepleted(detectedFoodPheromones[0], detectedFoodPheromones[1]) && detectedFoodPheromones[0] < worldX && detectedFoodPheromones[1] < worldY) {
+                int pheromoneX = detectedFoodPheromones[0] * tileSize;
+                int pheromoneY = detectedFoodPheromones[1] * tileSize;
+                moveToPosition(pheromoneX, pheromoneY);
+            }
+            else if(this.detectedHomePheromones[0] >= 0 && this.detectedHomePheromones[1] >= 0 && !isPheromoneDepleted(detectedHomePheromones[0], detectedHomePheromones[1]) && detectedHomePheromones[0] < worldX && detectedHomePheromones[1] < worldY) {
+                int pheromoneX = detectedHomePheromones[0] * tileSize;
+                int pheromoneY = detectedHomePheromones[1] * tileSize;
+                moveToPosition(pheromoneX, pheromoneY);
             }
             else {
                 Random random = new Random();
@@ -238,6 +254,10 @@ public class Ant implements Runnable {
         }
 
         if (!collisionOn) {
+            if (isFoodDepleted(x / tileSize, y / tileSize)) {
+                return;
+            }
+
             moveBasedOnDirection();
         }
     }
@@ -331,6 +351,18 @@ public class Ant implements Runnable {
 
     public void setNestDetected() {
         this.nestDetected = true;
+    }
+    private boolean isFoodDepleted(int x, int y) {
+        for (Food foodItem : foods) {
+            int[] foodItemsLocation = foodItem.getFoodLocation();
+            if (Arrays.equals(foodItemsLocation, new int[]{x, y})) {
+                return foodItem.getQuantity() == 0;
+            }
+        }
+        return false;
+    }
+    private boolean isPheromoneDepleted(int x, int y) {
+        return pheromoneGrid[x][y] == null || pheromoneGrid[x][y].getLevel() == 0;
     }
 
 }

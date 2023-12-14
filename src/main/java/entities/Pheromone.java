@@ -10,13 +10,15 @@ public class Pheromone {
     private final int x;
     private final int y;
     private final PheromoneType type;
+    private final int antId;
     private Color color;    /* red for food and blue for home */
     private int level;      /* starts at 3 (strongest) and gradually decrements */
 
-    public Pheromone(int x, int y, PheromoneType type) {
+    public Pheromone(int x, int y, PheromoneType type, int antId) {
         this.x = x;
         this.y = y;
         this.type = type;
+        this.antId = antId;
         this.level = 3;
         this.color = pheromoneColor[type.ordinal()][level];
     }
@@ -43,5 +45,7 @@ public class Pheromone {
     public int getLevel() {
         return this.level;
     }
+    public PheromoneType getType() { return this.type; }
+    public int getAntId() { return this.antId; }
 
 }
