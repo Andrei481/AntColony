@@ -111,6 +111,7 @@ public class Ant implements Runnable {
                 collisionOn = true;
                 Logger.logInfo("Ant " + id + " following food");
                 moveToPosition(foodX, foodY);
+//                detectedFoodCoords = new int[]{-1,-1};
 //                col_checker.checkTile(this);
             }
             else if(this.detectedHomePheromones[0] >= 0 && this.detectedHomePheromones[1] >= 0 && !isPheromoneDepleted(detectedHomePheromones[0], detectedHomePheromones[1]) && detectedHomePheromones[0] > worldX/tileSize && detectedHomePheromones[1] > worldY/tileSize) {
@@ -118,6 +119,7 @@ public class Ant implements Runnable {
                 int pheromoneY = detectedHomePheromones[1] * tileSize;
                 Logger.logInfo("Ant " + id + " following home pheromone");
                 moveToPosition(pheromoneX, pheromoneY);
+//                detectedHomePheromones = new int[]{-1,-1};
             }
 //            else if(this.detectedFoodPheromones[0] >= 0 && this.detectedFoodPheromones[1] >= 0 && !isPheromoneDepleted(detectedFoodPheromones[0], detectedFoodPheromones[1]) && detectedFoodPheromones[0] > worldX/tileSize && detectedHomePheromones[1] > worldY/tileSize) {
 //                int pheromoneX = detectedFoodPheromones[0] * tileSize;
@@ -190,6 +192,7 @@ public class Ant implements Runnable {
                     direction = DOWN;
                     worldY += speed;
                 }
+//                nestDetected = false;
             }
             else if(this.detectedFoodPheromones[0] >= 0 && this.detectedFoodPheromones[1] >= 0 && !isPheromoneDepleted(detectedFoodPheromones[0], detectedFoodPheromones[1]) && detectedFoodPheromones[0] < worldX/tileSize && detectedFoodPheromones[1] < worldY/tileSize) {
                 int pheromoneX = detectedFoodPheromones[0] * tileSize;
@@ -197,6 +200,8 @@ public class Ant implements Runnable {
                 Logger.logInfo("Ant " + id + " following food pheromone");
 
                 moveToPosition(pheromoneX, pheromoneY);
+//                detectedFoodPheromones = new int[]{-1,-1};
+
             }
 //            else if(this.detectedHomePheromones[0] >= 0 && this.detectedHomePheromones[1] >= 0 && !isPheromoneDepleted(detectedHomePheromones[0], detectedHomePheromones[1]) && detectedHomePheromones[0] < worldX/tileSize && detectedHomePheromones[1] < worldY/tileSize) {
 //                int pheromoneX = detectedHomePheromones[0] * tileSize;
@@ -366,8 +371,8 @@ public class Ant implements Runnable {
         return new int[]{nestPosX, nestPosY};
     }
 
-    public void setNestDetected() {
-        this.nestDetected = true;
+    public void setNestDetected(boolean detected) {
+        this.nestDetected = detected;
     }
     private boolean isFoodDepleted(int x, int y) {
         for (Food foodItem : foods) {
