@@ -3,6 +3,7 @@ package entities;
 import utils.Logger;
 
 import static definitions.SimulationEventType.FOOD_CREATED;
+import static definitions.SimulationEventType.FOOD_REDUCED;
 import static screens.SimulationScreen.updateBufferedMap;
 
 public class Food {
@@ -34,6 +35,7 @@ public class Food {
 
     public void decreaseQuantity() {
         this.quantity--;
+        Logger.logSimulation(FOOD_REDUCED, this);
         if (quantity == 0) updateBufferedMap();
     }
 }

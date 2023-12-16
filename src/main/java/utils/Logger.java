@@ -82,6 +82,9 @@ public class Logger {
         String message = "Ant " + ant.getId() + switch (eventType) {
             // TO DO: Use JSON messages
             case BIRTH -> " has spawned.";
+            case FOLLOW_FOOD -> " is following food.";
+            case USE_HOME_PH -> " is backtracking home pheromone";
+            case USE_FOOD_PH -> " is backtracking food pheromone";
             case MEAL -> " has eaten.";
             case REPRODUCTION -> " has reproduced.";
             case DEATH -> " has died.";
