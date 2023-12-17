@@ -9,8 +9,14 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
 
+import static definitions.AntActionType.SEARCH_NEST;
 import static definitions.SimulationEventType.*;
 import static screens.SimulationScreen.*;
+
+/*
+ * CollisionChecker contains the checkTile method.
+ * This method is used by every ant.
+ */
 
 public class CollisionChecker {
     private final Semaphore foodSemaphore;
@@ -22,25 +28,11 @@ public class CollisionChecker {
         this.reproduceSemaphore = reproduceSemaphore;
     }
 
-    public void checkTile(Ant ant) throws InterruptedException {
-        int entityLeftWorldX = ant.worldX + ant.solidArea.x;
-        int entityRightWorldX = ant.worldX + ant.solidArea.x + ant.solidArea.width;
-        int entityTopWorldY = ant.worldY + ant.solidArea.y;
-        int entityBotWorldY = ant.worldY + ant.solidArea.y + ant.solidArea.height;
+    private void lookAround(Ant ant) {
 
-        int entityLeftCol = entityLeftWorldX / tileSize;
-        int entityRightCol = entityRightWorldX / tileSize;
-        int entityTopRow = entityTopWorldY / tileSize;
-        int entityBotRow = entityBotWorldY / tileSize;
-
-        int tileNum1 = 0, tileNum2 = 0;
-        boolean collision = false;
-        boolean food = false;
-        boolean home = false;
         int visionRadius = ant.visionRadius;
         int antCol = ant.worldX / tileSize;
         int antRow = ant.worldY / tileSize;
-        int[] foundFoodLocation;
 
         for (int i = antCol - visionRadius; i <= antCol + visionRadius; i++) {
             for (int j = antRow - visionRadius; j <= antRow + visionRadius; j++) {
@@ -72,7 +64,27 @@ public class CollisionChecker {
                 }
             }
         }
-//        }
+    }
+
+    public void checkTile(Ant ant) throws InterruptedException {
+        int entityLeftWorldX = ant.worldX + ant.solidArea.x;
+        int entityRightWorldX = ant.worldX + ant.solidArea.x + ant.solidArea.width;
+        int entityTopWorldY = ant.worldY + ant.solidArea.y;
+        int entityBotWorldY = ant.worldY + ant.solidArea.y + ant.solidArea.height;
+
+        int entityLeftCol = entityLeftWorldX / tileSize;
+        int entityRightCol = entityRightWorldX / tileSize;
+        int entityTopRow = entityTopWorldY / tileSize;
+        int entityBotRow = entityBotWorldY / tileSize;
+
+        int tileNum1 = 0, tileNum2 = 0;
+        boolean collision = false;
+        boolean food = false;
+        boolean home = false;
+
+        int[] foundFoodLocation;
+
+        lookAround(ant);
 
         if (entityLeftCol >= 0 && entityRightCol >= 0 &&
 
@@ -198,6 +210,7 @@ public class CollisionChecker {
                     }
                 }
                 ant.gotFood = true;
+                ant.currentAction = SEARCH_NEST;
                 ant.loggedFollowFood = false;
 //                Logger.logSimulation("Ant " + ant.getID() + " has gotten food");
                 foodSemaphore.release();

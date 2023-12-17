@@ -87,7 +87,8 @@ public class Logger {
             case USE_FOOD_PH -> " is backtracking food pheromone";
             case MEAL -> " has eaten.";
             case REPRODUCTION -> " has reproduced.";
-            case DEATH -> " has died.";
+            case DEATH_STARVATION -> " has starved.";
+            case DEATH_AGE -> " has died of old age.";
 
             default ->
                     throw new IllegalStateException("Unexpected value when logging simulation ant event: " + eventType);

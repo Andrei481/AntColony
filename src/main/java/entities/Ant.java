@@ -1,9 +1,6 @@
 package entities;
 
-import definitions.Direction;
-import definitions.PheromoneType;
-import definitions.SimulationEventType;
-import utils.Logger;
+import definitions.*;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -13,31 +10,40 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Random;
 
+import static definitions.AntActionType.SEARCH_FOOD;
+import static definitions.AntMovementType.*;
 import static definitions.Direction.*;
 import static definitions.SimulationEventType.*;
 import static screens.SimulationScreen.*;
+import static utils.Logger.logSimulation;
 
 public class Ant implements Runnable {
 
+    /* Number of moves before starving */
+    public static final int MAX_HUNGER = 500;
     private final int id;
     public boolean isDead = false;
     public int worldX, worldY;
     public int speed;
+    public AntActionType currentAction = SEARCH_FOOD;
     public BufferedImage upSprite, downSprite, leftSprite, rightSprite;
     public Direction direction;
     public Rectangle solidArea;
     public boolean collisionOn = false;
     public boolean gotFood = false;
+    /* Variables used to send log message only once. */
     public boolean loggedFollowFood = false;
     public boolean loggedUseHomePheromone = false;
     public boolean loggedUseFoodPheromone = false;
     public boolean isHome = false;
     public boolean sentReadySignal = false;
     public int visionRadius = 10;
+    public boolean detectedFood = false;
     public int[] detectedFoodCoords = new int[]{-1, -1};
     public int[] detectedHomePheromones = new int[]{-1, -1};
     public int[] detectedFoodPheromones = new int[]{-1, -1};
-    private int deadCount = 0;
+    private AntMovementType movement = RANDOM;
+    private int hunger = 0;
     private int startPosX, startPosY;
     private int nestPosX, nestPosY;
     private int reproducedCounter;
@@ -54,87 +60,107 @@ public class Ant implements Runnable {
         this.reproducedCounter = 0;
     }
 
-    public int[] getAntLocation() {
-        return new int[]{this.worldX, this.worldY};
-    }
+    /*
+     * The Ant thread starts at run() and executes update() every 100 milliseconds.
+     * The update() method takes care of 1 ant movement by calling setAction();
+     * The draw() method is called by the SimulationScreen thread and places the ant on the screen.
+     */
 
-    public void reproduce() {
-        this.reproducedCounter++;
-        Logger.logSimulation(REPRODUCTION, this);
-        detectedFoodCoords = new int[]{-1, -1};
-        nestDetected = false;
-        detectedHomePheromones = new int[]{-1, -1};
-        detectedFoodPheromones = new int[]{-1, -1};
-    }
-
-    public int getReproducedCounter() {
-        return this.reproducedCounter;
-    }
-
-    private void depositPheromone(int prevX, int prevY) {
-        if (prevX >= 0 && prevX < maxScreenCol && prevY >= 0 && prevY < maxScreenRow) {
-            Pheromone pheromone;
-            if (gotFood)
-                pheromone = new Pheromone(prevX * tileSize, prevY * tileSize, PheromoneType.HOME, this.id);
-            else
-                pheromone = new Pheromone(prevX * tileSize, prevY * tileSize, PheromoneType.FOOD, this.id);
-            pheromoneGrid[prevX][prevY] = pheromone;
+    @Override
+    public void run() {
+        while (!Thread.currentThread().isInterrupted()) {
+            try {
+                update();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            try {
+                if (!Thread.currentThread().isInterrupted())
+                    Thread.sleep(100);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                System.err.println("Ant update error: " + e.getMessage());
+            }
         }
     }
 
-    private void setDefaultValues() {
-        startPosX = 13 * tileSize;
-        startPosY = 13 * tileSize;
-        nestPosX = 5 * tileSize;
-        nestPosY = 5 * tileSize;
-        speed = 5;
-        direction = DOWN;
-    }
-
-    private void getAntSprites() {
+    private void update() throws InterruptedException {
         try {
-            upSprite = ImageIO.read(new FileInputStream("res/ant_sprites/up.png"));
-            downSprite = ImageIO.read(new FileInputStream("res/ant_sprites/down.png"));
-            rightSprite = ImageIO.read(new FileInputStream("res/ant_sprites/right.png"));
-            leftSprite = ImageIO.read(new FileInputStream("res/ant_sprites/left.png"));
-        } catch (IOException e) {
-            System.err.println("Error getting ant sprites: " + e.getMessage());
+            int[] previousLocation = {worldX, worldY};
+            performAction();
+            depositPheromone(previousLocation);
+            increaseHunger();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
-    private void setAction() throws InterruptedException {
-//        Logger.logInfo("Ant " + id + " position: " + worldX/tileSize + " " + worldY/tileSize);
-        if (!gotFood) {
-            if (this.detectedFoodCoords[0] >= 0 && this.detectedFoodCoords[1] >= 0 && tile_manager.mapTileNum[detectedFoodCoords[0]][detectedFoodCoords[1]] == 2) {
+    private void performAction() throws InterruptedException {
+        switch (currentAction) {
+            case SEARCH_FOOD:
+                searchFood();
+                break;
+            case SEARCH_NEST:
+                searchNest();
+                break;
+            case SEARCH_MATE:
+                break;
+        }
 
+    }
+
+    private void detectFood() {
+    }
+
+    private boolean seesFood() {
+//        if (!detectedFood) detectFood();
+        return (detectedFoodCoords[0] >= 0 && detectedFoodCoords[1] >= 0
+                && tile_manager.mapTileNum[detectedFoodCoords[0]][detectedFoodCoords[1]] == 2);
+    }
+
+    private boolean seesHomePheromone() {
+        return (detectedHomePheromones[0] >= 0 && detectedHomePheromones[1] >= 0                                        // if collided with a pheromone
+                && !isPheromoneDepleted(detectedHomePheromones[0], detectedHomePheromones[1])                           // if pheromone not empty
+                && detectedHomePheromones[0] > worldX / tileSize && detectedHomePheromones[1] > worldY / tileSize);     // if pheromone is above and to the right of the ant?
+    }
+
+    private void searchFood() throws InterruptedException {
+
+        if (seesFood())
+            movement = DIRECT;
+        else if (seesHomePheromone())
+            movement = PHEROMONE;
+        else
+            movement = RANDOM_RIGHT;
+
+        switch (movement) {
+            case DIRECT:
                 int foodX = detectedFoodCoords[0] * tileSize;
                 int foodY = detectedFoodCoords[1] * tileSize;
                 //System.out.println("ant found food:"+id+"\n food cords:"+foodX+" "+foodY);
-                collisionOn = true;
+                //collisionOn = true; // no clue what this does
                 if (!loggedFollowFood) {
-                    Logger.logSimulation(FOLLOW_FOOD, this);
-                    loggedFollowFood = true;
-                    loggedUseHomePheromone = false;
+                    logSimulation(FOLLOW_FOOD, this);
+                    loggedFollowFood = true;            // log FOLLOW_FOOD only once
+                    loggedUseHomePheromone = false;     // move somewhere where we reset all flags
                 }
                 moveToPosition(foodX, foodY);
 //                detectedFoodCoords = new int[]{-1,-1};
 //                col_checker.checkTile(this);
-            } else if (this.detectedHomePheromones[0] >= 0 && this.detectedHomePheromones[1] >= 0 && !isPheromoneDepleted(detectedHomePheromones[0], detectedHomePheromones[1]) && detectedHomePheromones[0] > worldX / tileSize && detectedHomePheromones[1] > worldY / tileSize) {
+                break;
+
+            case PHEROMONE:
                 int pheromoneX = detectedHomePheromones[0] * tileSize;
                 int pheromoneY = detectedHomePheromones[1] * tileSize;
                 if (!loggedUseHomePheromone) {
-                    Logger.logSimulation(USE_HOME_PH, this);
+                    logSimulation(USE_HOME_PH, this);
                     loggedUseHomePheromone = true;
                 }
                 moveToPosition(pheromoneX, pheromoneY);
 //                detectedHomePheromones = new int[]{-1,-1};
-            }
-//            else if(this.detectedFoodPheromones[0] >= 0 && this.detectedFoodPheromones[1] >= 0 && !isPheromoneDepleted(detectedFoodPheromones[0], detectedFoodPheromones[1]) && detectedFoodPheromones[0] > worldX/tileSize && detectedHomePheromones[1] > worldY/tileSize) {
-//                int pheromoneX = detectedFoodPheromones[0] * tileSize;
-//                int pheromoneY = detectedFoodPheromones[1] * tileSize;
-//                moveToPosition(pheromoneX, pheromoneY);
-//            }
-            else {
+                break;
+
+            case RANDOM_RIGHT:
                 Random random = new Random();
                 int random_dir = random.nextInt(125);
                 if (random_dir < 25) {
@@ -151,25 +177,32 @@ public class Ant implements Runnable {
                 col_checker.checkTile(this);
                 // if collision = false, can move
                 if (!collisionOn) {
-                    switch (direction) {
-                        case UP:
-                            worldY -= speed;
-                            break;
-                        case DOWN:
-                            worldY += speed;
-                            break;
-                        case LEFT:
-                            worldX -= speed;
-                            break;
-                        case RIGHT:
-                            worldX += speed;
-                            break;
-                    }
+                    stepForward();
                 }
+                break;
+        }
+    }
 
-            }
-        } else {
-            if (nestDetected) {
+    private boolean seesFoodPheromone() {
+        return (this.detectedFoodPheromones[0] >= 0 &&
+                this.detectedFoodPheromones[1] >= 0 &&
+                !isPheromoneDepleted(detectedFoodPheromones[0], detectedFoodPheromones[1]) &&
+                detectedFoodPheromones[0] < worldX / tileSize &&
+                detectedFoodPheromones[1] < worldY / tileSize);
+    }
+
+    private void searchNest() throws InterruptedException {
+
+        if (nestDetected)
+            movement = DIRECT;
+        else if (seesFoodPheromone())
+            movement = PHEROMONE;
+        else
+            movement = RANDOM_LEFT;
+
+//        Logger.logInfo("Ant " + id + " position: " + worldX/tileSize + " " + worldY/tileSize);
+        switch (movement) {
+            case DIRECT:
                 collisionOn = false;
                 if (worldX > nestPosX) {
                     direction = LEFT;
@@ -202,24 +235,20 @@ public class Ant implements Runnable {
                 }
                 loggedUseFoodPheromone = false;
 //                nestDetected = false;
-            } else if (this.detectedFoodPheromones[0] >= 0 && this.detectedFoodPheromones[1] >= 0 && !isPheromoneDepleted(detectedFoodPheromones[0], detectedFoodPheromones[1]) && detectedFoodPheromones[0] < worldX / tileSize && detectedFoodPheromones[1] < worldY / tileSize) {
+                break;
+            case PHEROMONE:
                 int pheromoneX = detectedFoodPheromones[0] * tileSize;
                 int pheromoneY = detectedFoodPheromones[1] * tileSize;
                 if (!loggedUseFoodPheromone) {
-                    Logger.logSimulation(USE_FOOD_PH, this);
+                    logSimulation(USE_FOOD_PH, this);
                     loggedUseFoodPheromone = true;
                 }
 
                 moveToPosition(pheromoneX, pheromoneY);
 //                detectedFoodPheromones = new int[]{-1,-1};
+                break;
 
-            }
-//            else if(this.detectedHomePheromones[0] >= 0 && this.detectedHomePheromones[1] >= 0 && !isPheromoneDepleted(detectedHomePheromones[0], detectedHomePheromones[1]) && detectedHomePheromones[0] < worldX/tileSize && detectedHomePheromones[1] < worldY/tileSize) {
-//                int pheromoneX = detectedHomePheromones[0] * tileSize;
-//                int pheromoneY = detectedHomePheromones[1] * tileSize;
-//                moveToPosition(pheromoneX, pheromoneY);
-//            }
-            else {
+            case RANDOM_LEFT:
                 Random random = new Random();
                 int random_dir = random.nextInt(125);
                 if (random_dir < 25) {
@@ -251,14 +280,17 @@ public class Ant implements Runnable {
                             break;
                     }
                 }
-            }
+                break;
 
             //System.out.println("Ant " + id +foundFood+isHome+ " has found food, is going "+direction);
+
+
         }
-
-
     }
 
+    private void searchMate() {
+
+    }
 
     public void moveRandomly() throws InterruptedException {
         Random random = new Random();
@@ -292,11 +324,11 @@ public class Ant implements Runnable {
                 return;
             }
 
-            moveBasedOnDirection();
+            stepForward();
         }
     }
 
-    private void moveBasedOnDirection() {
+    private void stepForward() {
         switch (direction) {
             case UP:
                 worldY -= speed;
@@ -313,44 +345,22 @@ public class Ant implements Runnable {
         }
     }
 
-    private void update() throws InterruptedException {
-        try {
+    private void increaseHunger() {
+        if (gotFood)
+            return;
 
-            if (!isHome) {
-                if (deadCount == 500) {
-                    isDead = true;
-                    Thread.currentThread().interrupt();
-                    Logger.logSimulation(SimulationEventType.DEATH, this);
-                    //throw new Exception("Ant " + this.id + " is dead");
-                }
-                deadCount++;
-            }
-
-            int prevX = worldX;
-            int prevY = worldY;
-            setAction();
-            depositPheromone(prevX / tileSize, prevY / tileSize); // this will leave a pheromone behind each move
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        if (hunger == MAX_HUNGER) {
+            logSimulation(SimulationEventType.DEATH_STARVATION, this);
+            die();
         }
+
+        hunger++;
+
     }
 
-    @Override
-    public void run() {
-        while (!Thread.currentThread().isInterrupted()) {
-            try {
-                update();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            try {
-                if (!Thread.currentThread().isInterrupted())
-                    Thread.sleep(100);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                System.err.println("Ant update error: " + e.getMessage());
-            }
-        }
+    private void die() {
+        isDead = true;
+        Thread.currentThread().interrupt();
     }
 
     public void draw(Graphics2D g2) {
@@ -364,7 +374,7 @@ public class Ant implements Runnable {
 
         if (!isDead) {
             g2.drawImage(image, worldX, worldY, tileSize * 2, tileSize * 2, null);
-
+            g2.drawImage(image, 0, 0, tileSize * 2, tileSize * 2, null);
             for (int i = 0; i < maxScreenCol; i++) {
                 for (int j = 0; j < maxScreenRow; j++) {
                     Pheromone pheromone = pheromoneGrid[i][j];
@@ -402,4 +412,59 @@ public class Ant implements Runnable {
         return pheromoneGrid[x][y] == null || pheromoneGrid[x][y].getLevel() == 0;
     }
 
+    public void reproduce() {
+        logSimulation(REPRODUCTION, this);
+        reproducedCounter++;
+        detectedFoodCoords = new int[]{-1, -1};
+        nestDetected = false;
+        detectedHomePheromones = new int[]{-1, -1};
+        detectedFoodPheromones = new int[]{-1, -1};
+        if (reproducedCounter == 5) {
+            logSimulation(DEATH_AGE, this);
+            die();
+        }
+        currentAction = SEARCH_FOOD;
+    }
+
+    private void depositPheromone(int[] previousLocation) {
+        int prevX = previousLocation[0] / tileSize;
+        int prevY = previousLocation[1] / tileSize;
+
+        if (prevX >= 0 && prevX < maxScreenCol && prevY >= 0 && prevY < maxScreenRow) {
+            Pheromone pheromone;
+            if (gotFood)
+                pheromone = new Pheromone(prevX * tileSize, prevY * tileSize, PheromoneType.HOME, this.id);
+            else
+                pheromone = new Pheromone(prevX * tileSize, prevY * tileSize, PheromoneType.FOOD, this.id);
+            pheromoneGrid[prevX][prevY] = pheromone;
+        }
+    }
+
+    private void setDefaultValues() {
+        startPosX = 13 * tileSize;
+        startPosY = 13 * tileSize;
+        nestPosX = 5 * tileSize;
+        nestPosY = 5 * tileSize;
+        speed = 5;
+        direction = DOWN;
+    }
+
+    private void getAntSprites() {
+        try {
+            upSprite = ImageIO.read(new FileInputStream("res/ant_sprites/up.png"));
+            downSprite = ImageIO.read(new FileInputStream("res/ant_sprites/down.png"));
+            rightSprite = ImageIO.read(new FileInputStream("res/ant_sprites/right.png"));
+            leftSprite = ImageIO.read(new FileInputStream("res/ant_sprites/left.png"));
+        } catch (IOException e) {
+            System.err.println("Error getting ant sprites: " + e.getMessage());
+        }
+    }
+
+    public int[] getAntLocation() {
+        return new int[]{this.worldX, this.worldY};
+    }
+
+    public int getReproducedCounter() {
+        return this.reproducedCounter;
+    }
 }
