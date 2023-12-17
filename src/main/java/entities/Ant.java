@@ -448,12 +448,18 @@ public class Ant implements Runnable {
         int prevY = previousLocation[1] / tileSize;
 
         if (prevX >= 0 && prevX < maxScreenCol && prevY >= 0 && prevY < maxScreenRow) {
-            Pheromone pheromone;
-            if (gotFood)
-                pheromone = new Pheromone(prevX * tileSize, prevY * tileSize, PheromoneType.HOME, this.id);
-            else
-                pheromone = new Pheromone(prevX * tileSize, prevY * tileSize, PheromoneType.FOOD, this.id);
-            pheromoneGrid[prevX][prevY] = pheromone;
+            if (pheromoneGridLock.writeLock().tryLock()) {
+                try {
+                    Pheromone pheromone;
+                    if (gotFood)
+                        pheromone = new Pheromone(prevX * tileSize, prevY * tileSize, PheromoneType.HOME, this.id);
+                    else
+                        pheromone = new Pheromone(prevX * tileSize, prevY * tileSize, PheromoneType.FOOD, this.id);
+                    pheromoneGrid[prevX][prevY] = pheromone;
+                } finally {
+                    pheromoneGridLock.writeLock().unlock();
+                }
+            }
         }
     }
 

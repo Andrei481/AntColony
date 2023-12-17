@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
-
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import static definitions.SimulationEventType.BIRTH;
 import static java.lang.Thread.sleep;
 
@@ -35,6 +35,7 @@ public class SimulationScreen extends JLayeredPane implements Runnable {
     public static TileManager tile_manager = new TileManager();
     public static CollisionChecker col_checker = new CollisionChecker(foodSemaphore, reproduceSemaphore);
     public static Pheromone[][] pheromoneGrid;
+    public static ReentrantReadWriteLock pheromoneGridLock = new ReentrantReadWriteLock ();
     public static ArrayList<Food> foods;
     public static Nest nest = new Nest();
     public static int antIdCount = 0;
@@ -75,7 +76,7 @@ public class SimulationScreen extends JLayeredPane implements Runnable {
 
         pheromoneGrid = new Pheromone[maxScreenCol][maxScreenRow];
 
-        int initialAntCount = 2;
+        int initialAntCount = 10;
         for (int i = 0; i < initialAntCount; i++) {
             antIdCount++;
             Ant ant = new Ant(antIdCount);
