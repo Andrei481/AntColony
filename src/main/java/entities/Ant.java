@@ -34,7 +34,7 @@ public class Ant implements Runnable {
     private int startPosX, startPosY;
     private int nestPosX, nestPosY;
     private int reproducedCounter;
-    public int visionRadius = 10;
+    public int visionRadius = 7;
     public int[] detectedFoodCoords = new int[]{-1,-1};
     private boolean nestDetected = false;
     public int[] detectedHomePheromones = new int[]{-1,-1};
