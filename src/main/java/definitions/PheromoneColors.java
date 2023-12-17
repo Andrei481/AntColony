@@ -1,6 +1,6 @@
 package definitions;
 
-import java.awt.Color;
+import java.awt.*;
 
 /*
  *  Color [type] [level]
@@ -10,6 +10,8 @@ import java.awt.Color;
  */
 
 public class PheromoneColors {
-    public static final Color[][] pheromoneColor = { { new Color(255, 255, 255, 100), new Color(255, 150, 150, 100), new Color(255,  75,  75, 100), new Color(255,   0,   0, 100) },
-                                                     { new Color(255, 255, 255, 0), new Color(150, 150, 255, 15), new Color( 75,  75, 255, 15), new Color(  0,   0, 255, 15) } };
+    public static final Color[][] pheromoneColor = {
+            {new Color(255, 255, 255, 0), new Color(255, 150, 150, 75), new Color(255, 75, 75, 75), new Color(255, 0, 0, 75)},
+            {new Color(255, 255, 255, 0), new Color(150, 150, 255, 75), new Color(75, 75, 255, 75), new Color(0, 0, 255, 75)}
+    };
 }
