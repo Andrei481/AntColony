@@ -37,7 +37,7 @@ public class Ant implements Runnable {
     public boolean loggedUseFoodPheromone = false;
     public boolean isHome = false;
     public boolean sentReadySignal = false;
-    public int visionRadius = 10;
+    public int visionRadius = 7;
     public boolean detectedFood = false;
     public int[] detectedFoodTile = new int[]{-1, -1};
     public int[] detectedHomePheromoneTile = new int[]{-1, -1};

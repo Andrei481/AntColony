@@ -34,8 +34,8 @@ public class CollisionChecker {
         int antCol = ant.worldX / tileSize;
         int antRow = ant.worldY / tileSize;
 
-        for (int i = antCol - visionRadius; i <= antCol + visionRadius; i++) {
-            for (int j = antRow - visionRadius; j <= antRow + visionRadius; j++) {
+        for (int i = antRow - visionRadius; i <= antRow + visionRadius; i++) {
+            for (int j = antCol - visionRadius; j <= antCol + visionRadius; j++) {
                 if (i >= 0 && i < tile_manager.mapTileNum.length && j >= 0 && j < tile_manager.mapTileNum[0].length) {
                     int tileNum = tile_manager.mapTileNum[i][j];
                     if (!ant.gotFood) {
