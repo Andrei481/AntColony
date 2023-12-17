@@ -44,6 +44,7 @@ public class SimulationScreen extends JLayeredPane implements Runnable {
     int FPS = 60;
     private BufferedImage bufferedMap;
 
+
     public static void launch() {
         SimulationScreen screen = new SimulationScreen();
 
@@ -74,7 +75,7 @@ public class SimulationScreen extends JLayeredPane implements Runnable {
 
         pheromoneGrid = new Pheromone[maxScreenCol][maxScreenRow];
 
-        int initialAntCount = 10;
+        int initialAntCount = 2;
         for (int i = 0; i < initialAntCount; i++) {
             antIdCount++;
             Ant ant = new Ant(antIdCount);

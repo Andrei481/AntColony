@@ -4,7 +4,7 @@ import entities.Pheromone;
 
 public class EvaporationThread extends Thread {
     private final Pheromone[][] pheromoneGrid;
-    private final int updateIntervalMillis = 2000;
+    private final int updateIntervalMillis = 3500;
     private boolean isRunning = true;
 
     public EvaporationThread(Pheromone[][] pheromoneGrid) {

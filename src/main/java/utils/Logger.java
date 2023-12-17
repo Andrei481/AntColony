@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -98,7 +99,7 @@ public class Logger {
         String message = "Food " + food.getId() + switch (eventType) {
             case FOOD_CREATED -> " has been created";
             case FOOD_REDUCED -> " has " + food.getQuantity() + " servings left";
-            case FOOD_DEPLETED -> " has been depleted";
+            case FOOD_DEPLETED -> " has been depleted at position " + Arrays.toString(food.getFoodLocation());
 
             default ->
                     throw new IllegalStateException("Unexpected value when logging simulation food event: " + eventType);
