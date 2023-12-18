@@ -43,29 +43,51 @@ By executing this project description, we aspire to craft an engaging and inform
 
 **_Modules_**
 
-**Ants Module**
+**Entities Module**
 
 _Ant Class_: This class represents individual ants. It should include attributes such as position, pheromone levels, and state. Ants should be capable of performing actions like foraging, depositing pheromones, and returning home.
-
-**World Module**
-       
-_World Class_: The World class defines the environment where the simulation takes place. It includes the terrain, home base, food sources, and obstacles. It manages the spatial layout of the simulation.
 
 _Pheromone Class_: This class represents the pheromone trails left by ants and handles their deposition and evaporation.
 
 _Food Class_: Represents food sources in the simulation. It manages the availability of food and tracks consumption by ants.
 
+_Nest Class_:
+
 **Simulation Module**
 
-_Simulation Class_: The Simulation class is responsible for coordinating and managing the overall simulation. It initializes the world, creates and manages ant agents, and ensures synchronization among threads.
+_EvaporationThread Class_: This class takes care of updating pheromones.
+
+_TileManager Class_: This class defines the environment where the simulation takes place. It includes the terrain, home base, food sources, and obstacles. It manages the spatial layout of the simulation.
+
+_CollisionChecker_: This class is used by each ant to check whenever it encounters another entity and instructs the ant what actions to perform.
+
+**Screens Module**
+
+_SimulationScreen_: Displays the simulation on the screen
+
+**Utils Module**
+
+_Logger Class_: Keeps track of every event.
+
+_StatisticsProvider Class_: Sends event messages to the secondary app.
+
+_ThreadMonitor Class_: Keeps track of the active threads to ease debugging.
 
 **_Threads_**
+
+_Main Thread_
+
+_Thread Monitor_
+
+_GUI_Thread_
 
 _Ant Threads_:
         Each ant in the simulation runs as an independent thread. Ant threads simulate the autonomous behavior of ants, including wandering, foraging, and interacting with the environment. These threads continuously sense their surroundings and make decisions based on sensory inputs.
 
 _Evaporation Thread_:
         A separate thread responsible for managing pheromone evaporation. It periodically updates pheromone levels across the world to simulate the fading of pheromone trails.
+
+_Statistics Thread_
 
 **_Entry Points_**
 
