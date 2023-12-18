@@ -1,6 +1,7 @@
 package entities;
 
 import definitions.*;
+import utils.Logger;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -50,14 +51,19 @@ public class Ant implements Runnable {
     private boolean nestDetected = false;
 
 
-    public Ant(int id) {
-        this.id = id;
+    public Ant() {
+        antIdCount++;
+        id = antIdCount;
+        Thread antThread = new Thread(this);
+        antThreadMap.put(this, antThread);
         solidArea = new Rectangle(0, 0, tileSize, tileSize);
         setDefaultValues();
         getAntSprites();
         worldX = startPosX;
         worldY = startPosY;
-        this.reproducedCounter = 0;
+        reproducedCounter = 0;
+        antThread.start();
+        Logger.logSimulation(BIRTH, this);
     }
 
     /*
@@ -80,7 +86,7 @@ public class Ant implements Runnable {
             }
             try {
                 if (!Thread.currentThread().isInterrupted())
-                    Thread.sleep(100);
+                    Thread.sleep(200);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 System.err.println("Ant update error: " + e.getMessage());
@@ -206,40 +212,13 @@ public class Ant implements Runnable {
 
 //        Logger.logInfo("Ant " + id + " position: " + worldX/tileSize + " " + worldY/tileSize);
         switch (movement) {
-            case DIRECT:
+            case DIRECT: {
+                int[] nestPosition = {nestPosX, nestPosY};
                 collisionOn = false;
-                if (worldX > nestPosX) {
-                    direction = LEFT;
-                    col_checker.checkTile(this);
-                    if (!collisionOn) {
-                        worldX -= speed;
-                        return;
-                    }
-                }
-                if (worldX < nestPosX) {
-                    direction = RIGHT;
-                    col_checker.checkTile(this);
-                    if (!collisionOn) {
-                        worldX += speed;
-                        return;
-                    }
-                }
-
-                if (worldY > nestPosY) {
-                    direction = UP;
-                    col_checker.checkTile(this);
-                    if (!collisionOn) {
-                        worldY -= speed;
-                        return;
-                    }
-                }
-                if (worldY < nestPosY) {
-                    direction = DOWN;
-                    worldY += speed;
-                }
+                moveTowards(nestPosition);
                 loggedUseFoodPheromone = false;
-//                nestDetected = false;
                 break;
+            }
             case PHEROMONE: {
                 int[] pheromonePosition = {detectedFoodPheromoneTile[0] * tileSize, detectedFoodPheromoneTile[1] * tileSize};
                 if (!loggedUseFoodPheromone) {
@@ -429,20 +408,41 @@ public class Ant implements Runnable {
         return pheromoneGrid[x][y] == null || pheromoneGrid[x][y].getLevel() == 0;
     }
 
-    public void reproduce() {
+    public void reproduceWith(Ant partnerAnt) {
         logSimulation(REPRODUCTION, this);
+        logSimulation(REPRODUCTION, partnerAnt);
         reproducedCounter++;
+        partnerAnt.reproducedCounter++;
+
         detectedFoodTile = new int[]{-1, -1};
         nestDetected = false;
         detectedHomePheromoneTile = new int[]{-1, -1};
         detectedFoodPheromoneTile = new int[]{-1, -1};
+        partnerAnt.detectedFoodTile = new int[]{-1, -1};
+        partnerAnt.nestDetected = false;
+        partnerAnt.detectedHomePheromoneTile = new int[]{-1, -1};
+        partnerAnt.detectedFoodPheromoneTile = new int[]{-1, -1};
+
+        gotFood = false;
+        partnerAnt.gotFood = false;
+
+        currentAction = SEARCH_FOOD;
+        partnerAnt.currentAction = SEARCH_FOOD;
+
+        nest.removeAntReady(partnerAnt);
+
         if (reproducedCounter == 5) {
             logSimulation(DEATH_AGE, this);
             die();
         }
-        currentAction = SEARCH_FOOD;
-    }
 
+        if (partnerAnt.reproducedCounter ==5) {
+            logSimulation(DEATH_AGE, partnerAnt);
+            partnerAnt.die();
+        }
+
+        new Ant();
+    }
     private void depositPheromone(int[] previousLocation) {
         int prevX = previousLocation[0] / tileSize;
         int prevY = previousLocation[1] / tileSize;
@@ -468,7 +468,7 @@ public class Ant implements Runnable {
         startPosY = 13 * tileSize;
         nestPosX = 5 * tileSize;
         nestPosY = 5 * tileSize;
-        speed = 5;
+        speed = 10;
         direction = DOWN;
     }
 

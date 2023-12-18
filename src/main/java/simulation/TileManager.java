@@ -22,7 +22,7 @@ public class TileManager {
         mapTileNum = new int[SimulationScreen.maxScreenCol][SimulationScreen.maxScreenRow];
         getTileImage();
         SimulationScreen.foods = new ArrayList<>();
-        loadMap("res/maps/map1.txt");
+        loadMap("res/maps/map50x50.txt");
     }
 
 

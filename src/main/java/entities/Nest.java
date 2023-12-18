@@ -15,9 +15,7 @@ public class Nest {
 
     public void removeAntReady(Ant ant) {
         synchronized (antsReady) {
-            ant.gotFood = false;
             ant.sentReadySignal = false;
-            ant.reproduce();
             antsReady.remove(ant);
         }
     }

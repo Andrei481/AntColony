@@ -20,12 +20,10 @@ import static screens.SimulationScreen.*;
 
 public class CollisionChecker {
     private final Semaphore foodSemaphore;
-    private final Semaphore reproduceSemaphore;
 
 
-    public CollisionChecker(Semaphore foodSemaphore, Semaphore reproduceSemaphore) {
+    public CollisionChecker(Semaphore foodSemaphore) {
         this.foodSemaphore = foodSemaphore;
-        this.reproduceSemaphore = reproduceSemaphore;
     }
 
     private void lookAround(Ant ant) {
@@ -130,27 +128,15 @@ public class CollisionChecker {
         if (ant.isHome) {
             //Logger.logSimulation("Ant " + ant.getID() + " is Home");
             if (ant.gotFood) {
-                //reproduceSemaphore.acquire();
-                if (!ant.sentReadySignal) {
+                if (!ant.sentReadySignal) { //first ant that arrives at the nest
                     Set<Ant> antsReady = nest.getAntsReady();
                     if (antsReady.isEmpty()) {
                         nest.addAntReady(ant);
                         ant.sentReadySignal = true;
-                    } else {
+                    } else {    //second ant
                         Ant partnerAnt = antsReady.iterator().next();
-                        nest.removeAntReady(partnerAnt);
-                        ant.gotFood = false;
-                        ant.reproduce();
-                        antIdCount++;
-                        Ant babyAnt = new Ant(antIdCount);
-                        Thread babyAntThread = new Thread(babyAnt);
-                        babyAntThread.start();
-                        antThreadMap.put(babyAnt, babyAntThread);
-                        Logger.logSimulation(BIRTH, babyAnt);
-
-
+                        ant.reproduceWith(partnerAnt);
                     }
-                    //reproduceSemaphore.release();
                 }
             }
         } else if (food) {

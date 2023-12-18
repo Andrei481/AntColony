@@ -17,23 +17,21 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import static definitions.SimulationEventType.BIRTH;
 import static java.lang.Thread.sleep;
 
 public class SimulationScreen extends JLayeredPane implements Runnable {
 
-    public static final int maxScreenCol = 100;
-    public static final int maxScreenRow = 100;
+    public static final int maxScreenCol = 50;
+    public static final int maxScreenRow = 50;
     //screen settings
     final static int originalTileSize = 10;
-    final static int scale = 1;
+    final static int scale = 2;
     private static final Semaphore foodSemaphore = new Semaphore(1);
-    private static final Semaphore reproduceSemaphore = new Semaphore(1);
     public static int tileSize = originalTileSize * scale;
     public static int screenWidth = tileSize * maxScreenCol;
     public static final int screenHeight = tileSize * maxScreenRow;
     public static TileManager tile_manager = new TileManager();
-    public static CollisionChecker col_checker = new CollisionChecker(foodSemaphore, reproduceSemaphore);
+    public static CollisionChecker col_checker = new CollisionChecker(foodSemaphore);
     public static Pheromone[][] pheromoneGrid;
     public static ReentrantReadWriteLock pheromoneGridLock = new ReentrantReadWriteLock ();
     public static ArrayList<Food> foods;
@@ -76,13 +74,7 @@ public class SimulationScreen extends JLayeredPane implements Runnable {
 
         pheromoneGrid = new Pheromone[maxScreenCol][maxScreenRow];
 
-        int initialAntCount = 10;
-        for (int i = 0; i < initialAntCount; i++) {
-            antIdCount++;
-            Ant ant = new Ant(antIdCount);
-            antThreadMap.put(ant, new Thread(ant));
-            Logger.logSimulation(BIRTH, ant);
-        }
+
         EvaporationThread evaporationThread = new EvaporationThread(pheromoneGrid);
         evaporationThread.start();
 
@@ -93,10 +85,12 @@ public class SimulationScreen extends JLayeredPane implements Runnable {
         tile_manager.draw((Graphics2D) bufferedMap.getGraphics());
 
 
-        /* Start ant threads */
-        for (Map.Entry<Ant, Thread> entry : antThreadMap.entrySet()) {
-            entry.getValue().start();
+        /* Spawn initial ant population */
+        int initialAntCount = 3;
+        for (int i = 0; i < initialAntCount; i++) {
+            new Ant();
         }
+
         while (GUIThread != null) {
             for (Map.Entry<Ant, Thread> entry : antThreadMap.entrySet()) {
                 if (entry.getKey().isDead)
