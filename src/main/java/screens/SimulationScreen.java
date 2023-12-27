@@ -86,7 +86,7 @@ public class SimulationScreen extends JLayeredPane implements Runnable {
 
 
         /* Spawn initial ant population */
-        int initialAntCount = 3;
+        int initialAntCount = 10;
         for (int i = 0; i < initialAntCount; i++) {
             new Ant();
         }
