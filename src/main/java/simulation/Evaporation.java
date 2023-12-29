@@ -2,13 +2,15 @@ package simulation;
 
 import entities.Pheromone;
 
-public class EvaporationThread extends Thread {
-    private final Pheromone[][] pheromoneGrid;
+import static simulation.SimulationMain.pheromoneGrid;
+
+public class Evaporation implements Runnable {
     private final int updateIntervalMillis = 3500;
     private boolean isRunning = true;
 
-    public EvaporationThread(Pheromone[][] pheromoneGrid) {
-        this.pheromoneGrid = pheromoneGrid;
+    public static void launch() {
+        Thread evaporationThread = new Thread(new Evaporation());
+        evaporationThread.start();
     }
 
     @Override

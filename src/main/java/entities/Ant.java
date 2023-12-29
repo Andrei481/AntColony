@@ -16,6 +16,7 @@ import static definitions.AntMovementType.*;
 import static definitions.Direction.*;
 import static definitions.SimulationEventType.*;
 import static screens.SimulationScreen.*;
+import static simulation.SimulationMain.*;
 import static utils.Logger.logSimulation;
 
 public class Ant implements Runnable {
@@ -357,6 +358,7 @@ public class Ant implements Runnable {
 
     private void die() {
         isDead = true;
+        antThreadMap.remove(this);
         Thread.currentThread().interrupt();
     }
 
@@ -436,13 +438,14 @@ public class Ant implements Runnable {
             die();
         }
 
-        if (partnerAnt.reproducedCounter ==5) {
+        if (partnerAnt.reproducedCounter == 5) {
             logSimulation(DEATH_AGE, partnerAnt);
             partnerAnt.die();
         }
 
         new Ant();
     }
+
     private void depositPheromone(int[] previousLocation) {
         int prevX = previousLocation[0] / tileSize;
         int prevY = previousLocation[1] / tileSize;

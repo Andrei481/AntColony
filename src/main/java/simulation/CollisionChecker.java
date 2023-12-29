@@ -10,8 +10,11 @@ import java.util.Set;
 import java.util.concurrent.Semaphore;
 
 import static definitions.AntActionType.SEARCH_NEST;
-import static definitions.SimulationEventType.*;
-import static screens.SimulationScreen.*;
+import static definitions.SimulationEventType.FOOD_DEPLETED;
+import static definitions.SimulationEventType.MEAL;
+import static screens.SimulationScreen.tileSize;
+import static screens.SimulationScreen.tile_manager;
+import static simulation.SimulationMain.*;
 
 /*
  * CollisionChecker contains the checkTile method.

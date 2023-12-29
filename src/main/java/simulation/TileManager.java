@@ -9,6 +9,9 @@ import java.awt.*;
 import java.io.*;
 import java.util.ArrayList;
 
+import static screens.SimulationScreen.maxScreenCol;
+import static screens.SimulationScreen.maxScreenRow;
+
 /* This class is responsible for loading the map. A single instance is created in Panel.java.
  * On creation, it draws the initial map.
  */
@@ -19,9 +22,9 @@ public class TileManager {
 
     public TileManager() {
         tile = new TileType[4];
-        mapTileNum = new int[SimulationScreen.maxScreenCol][SimulationScreen.maxScreenRow];
+        mapTileNum = new int[maxScreenCol][maxScreenRow];
         getTileImage();
-        SimulationScreen.foods = new ArrayList<>();
+        SimulationMain.foods = new ArrayList<>();
         loadMap("res/maps/map50x50.txt");
     }
 
@@ -53,14 +56,14 @@ public class TileManager {
         int worldCol = 0;
         int worldRow = 0;
 
-        while (worldCol < SimulationScreen.maxScreenCol && worldRow < SimulationScreen.maxScreenRow) {
+        while (worldCol < maxScreenCol && worldRow < maxScreenRow) {
             int tileNum = mapTileNum[worldCol][worldRow];
             int worldX = worldCol * SimulationScreen.tileSize;
             int worldY = worldRow * SimulationScreen.tileSize;
             g2.drawImage(tile[tileNum].image, worldX, worldY, SimulationScreen.tileSize, SimulationScreen.tileSize, null);
             worldCol++;
 
-            if (worldCol == SimulationScreen.maxScreenCol) {
+            if (worldCol == maxScreenCol) {
                 worldCol = 0;
                 worldRow++;
             }
@@ -74,19 +77,19 @@ public class TileManager {
 
             int col = 0;
             int row = 0;
-            while (col < SimulationScreen.maxScreenCol && row < SimulationScreen.maxScreenRow) {
+            while (col < maxScreenCol && row < maxScreenRow) {
                 String line = br.readLine();
-                while (col < SimulationScreen.maxScreenCol) {
+                while (col < maxScreenCol) {
                     String[] numbers = line.split(" ");
                     int num = Integer.parseInt(numbers[col]);
                     mapTileNum[col][row] = num;
                     if (num == 2) {
                         Food food = new Food(col, row);
-                        SimulationScreen.foods.add(food);
+                        SimulationMain.foods.add(food);
                     }
                     col++;
                 }
-                if (col == SimulationScreen.maxScreenCol) {
+                if (col == maxScreenCol) {
                     col = 0;
                     row++;
                 }
