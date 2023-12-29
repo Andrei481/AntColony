@@ -1,123 +1,58 @@
 package screens;
 
 import entities.Ant;
-import entities.Food;
-import entities.Nest;
-import entities.Pheromone;
-import simulation.CollisionChecker;
-import simulation.EvaporationThread;
 import simulation.TileManager;
 import utils.Logger;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import static definitions.SimulationEventType.BIRTH;
+
 import static java.lang.Thread.sleep;
+import static simulation.SimulationMain.antThreadMap;
 
 public class SimulationScreen extends JLayeredPane implements Runnable {
 
-    public static final int maxScreenCol = 100;
-    public static final int maxScreenRow = 100;
-    //screen settings
+    public static final int maxScreenCol = 50;
+    public static final int maxScreenRow = 50;
     final static int originalTileSize = 10;
-    final static int scale = 1;
-    private static final Semaphore foodSemaphore = new Semaphore(1);
-    private static final Semaphore reproduceSemaphore = new Semaphore(1);
+    final static int scale = 2;
     public static int tileSize = originalTileSize * scale;
     public static int screenWidth = tileSize * maxScreenCol;
     public static final int screenHeight = tileSize * maxScreenRow;
     public static TileManager tile_manager = new TileManager();
-    public static CollisionChecker col_checker = new CollisionChecker(foodSemaphore, reproduceSemaphore);
-    public static Pheromone[][] pheromoneGrid;
-    public static ReentrantReadWriteLock pheromoneGridLock = new ReentrantReadWriteLock ();
-    public static ArrayList<Food> foods;
-    public static Nest nest = new Nest();
-    public static int antIdCount = 0;
-    public static Map<Ant, Thread> antThreadMap = new ConcurrentHashMap<>();
-    private static Thread GUIThread;
-    private static boolean mapUpdateNeeded = false;
-    int FPS = 60;
-    private BufferedImage bufferedMap;
+    private static Thread SimulationScreenThread;
+    private static boolean mapUpdateNeeded = true;
+    private static final int FPS = 30;
+    private static final int drawIntervalMillis = 1000 / FPS; // 1 sec = 1000 ms
+    private static long nextDrawTimeMillis;
+    private static BufferedImage bufferedMap;
+    private static SimulationScreen simulationScreen;
 
 
     public static void launch() {
-        SimulationScreen screen = new SimulationScreen();
-
-        screen.setPreferredSize(new Dimension(screenWidth, screenHeight));
-        screen.setBackground(Color.green);
-        screen.setDoubleBuffered(true);
-
-        JFrame appWindow = new JFrame();
-        appWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        appWindow.setExtendedState(JFrame.MAXIMIZED_BOTH);
-        appWindow.setTitle("Ant Colony Simulation");
-        appWindow.add(screen);
-        appWindow.pack();
-        appWindow.setLocationRelativeTo(null);
-        appWindow.setVisible(true);
-
-        GUIThread = new Thread(screen);
-        GUIThread.start();
+        simulationScreen = new SimulationScreen();
+        SimulationScreenThread = new Thread(simulationScreen);
+        SimulationScreenThread.start();
         Logger.logInfo("GUI started");
-    }
-
-    public static void updateBufferedMap() {
-        mapUpdateNeeded = true;
     }
 
     @Override
     public void run() {
-
-        pheromoneGrid = new Pheromone[maxScreenCol][maxScreenRow];
-
-        int initialAntCount = 10;
-        for (int i = 0; i < initialAntCount; i++) {
-            antIdCount++;
-            Ant ant = new Ant(antIdCount);
-            antThreadMap.put(ant, new Thread(ant));
-            Logger.logSimulation(BIRTH, ant);
-        }
-        EvaporationThread evaporationThread = new EvaporationThread(pheromoneGrid);
-        evaporationThread.start();
-
-        double drawInterval = (double) 1000000000 / FPS;
-        double nextDrawTime = System.nanoTime() + drawInterval;
-
+        createAppWindow();
         bufferedMap = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
-        tile_manager.draw((Graphics2D) bufferedMap.getGraphics());
 
-
-        /* Start ant threads */
-        for (Map.Entry<Ant, Thread> entry : antThreadMap.entrySet()) {
-            entry.getValue().start();
-        }
-        while (GUIThread != null) {
-            for (Map.Entry<Ant, Thread> entry : antThreadMap.entrySet()) {
-                if (entry.getKey().isDead)
-                    entry.getValue().interrupt();
-            }
-            antThreadMap.entrySet().removeIf(entry -> entry.getValue().isInterrupted());
+        while (SimulationScreenThread != null) {
+            nextDrawTimeMillis = System.currentTimeMillis() + drawIntervalMillis;
             repaint();
-            try {
-                double remainingTime = nextDrawTime - System.nanoTime();
-                remainingTime = remainingTime / 100000;
 
-                if (remainingTime < 0) {
-                    remainingTime = 0;
-                }
-                sleep((long) remainingTime);
-                nextDrawTime += drawInterval;
+            try {
+                sleepUntilNextFrame();
             } catch (InterruptedException e) {
                 System.err.println("Screen drawing error: " + e.getMessage());
             }
         }
-
     }
 
     public void paintComponent(Graphics g) {
@@ -125,20 +60,47 @@ public class SimulationScreen extends JLayeredPane implements Runnable {
         Graphics2D g2 = (Graphics2D) g;
 
         if (mapUpdateNeeded) {
-            /* Redraw the map tile by tile */
+            /* Update the buffered map tile by tile if any tile changed */
             tile_manager.draw((Graphics2D) bufferedMap.getGraphics());
             mapUpdateNeeded = false;
         }
-        g2.drawImage(bufferedMap, 0, 0, this);  /* Draw the map from the previous frame (no changes) */
+
+        /* Draw the map using the already computed buffer */
+        g2.drawImage(bufferedMap, 0, 0, this);
 
         /* Draw every ant */
-
-        /* antThreadMap is now a ConcurrentHashMap to avoid concurrency problems
-         * e.g. ant spawns while we are drawing the ants */
-
         for (Map.Entry<Ant, Thread> entry : antThreadMap.entrySet()) {
             entry.getKey().draw(g2);
         }
+
         g2.dispose();
+    }
+
+    public static void updateBufferedMap() {
+        mapUpdateNeeded = true;
+    }
+
+    private void sleepUntilNextFrame() throws InterruptedException {
+        long remainingTimeMillis = nextDrawTimeMillis - System.currentTimeMillis();
+
+        if (remainingTimeMillis > 0) {
+            sleep(remainingTimeMillis);
+        }
+
+    }
+
+    private static void createAppWindow() {
+        simulationScreen.setPreferredSize(new Dimension(screenWidth, screenHeight));
+        simulationScreen.setBackground(Color.green);
+        simulationScreen.setDoubleBuffered(true);
+
+        JFrame appWindow = new JFrame();
+        appWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        appWindow.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        appWindow.setTitle("Ant Colony Simulation");
+        appWindow.add(simulationScreen);
+        appWindow.pack();
+        appWindow.setLocationRelativeTo(null);
+        appWindow.setVisible(true);
     }
 }

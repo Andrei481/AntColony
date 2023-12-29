@@ -1,6 +1,6 @@
 package main;
 
-import screens.SimulationScreen;
+import simulation.SimulationMain;
 import utils.Logger;
 import utils.ThreadMonitor;
 
@@ -9,7 +9,9 @@ public class Main {
 
         Logger.setLoggingEnabled(true);
         Logger.logInfo("Program launched");
+        //Logger.launch();
         ThreadMonitor.launch();
-        SimulationScreen.launch();
+
+        SimulationMain.launch();
     }
 }
