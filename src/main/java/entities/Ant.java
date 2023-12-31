@@ -2,11 +2,8 @@ package entities;
 
 import definitions.*;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -29,7 +26,6 @@ public class Ant implements Runnable {
     public int worldX, worldY;
     public int speed;
     public AntActionType currentAction = SEARCH_FOOD;
-    public BufferedImage upSprite, downSprite, leftSprite, rightSprite;
     public Direction direction = DOWN;
     public Rectangle solidArea;
     public boolean collisionOn = false;
@@ -48,7 +44,8 @@ public class Ant implements Runnable {
     public int[] detectedFoodPheromoneTile = new int[]{-1, -1};
     private AntMovementType movement = RANDOM;
     private int hunger = 0;
-    private int startPosX, startPosY;
+    private final int startPosX;
+    private final int startPosY;
     private final int updateCooldownMillis;
     private int reproducedCounter;
     private boolean nestDetected = false;
@@ -59,8 +56,11 @@ public class Ant implements Runnable {
         Thread antThread = new Thread(this);
         antThreadMap.put(this, antThread);
         solidArea = new Rectangle(0, 0, tileSize, tileSize);
-        setDefaultValues();
-        getAntSprites();
+        startPosX = 13 * tileSize;
+        startPosY = 13 * tileSize;
+        nestPosX = 5 * tileSize;
+        nestPosY = 5 * tileSize;
+        speed = 10;
         worldX = startPosX;
         worldY = startPosY;
         reproducedCounter = 0;
@@ -68,6 +68,8 @@ public class Ant implements Runnable {
         antThread.start();
         logSimulation(BIRTH, this);
     }
+
+
 
     /*
      * The Ant thread starts at run() and executes update() every X milliseconds.
@@ -356,6 +358,7 @@ public class Ant implements Runnable {
         hunger = 0;
         gotFood = false;
         currentAction = SEARCH_FOOD;
+        logSimulation(MEAL, this);
     }
 
     private void increaseHunger() {
@@ -466,25 +469,6 @@ public class Ant implements Runnable {
                     pheromoneGridLock.writeLock().unlock();
                 }
             }
-        }
-    }
-
-    private void setDefaultValues() {
-        startPosX = 13 * tileSize;
-        startPosY = 13 * tileSize;
-        nestPosX = 5 * tileSize;
-        nestPosY = 5 * tileSize;
-        speed = 10;
-    }
-
-    private void getAntSprites() {
-        try {
-            upSprite = ImageIO.read(new FileInputStream("res/ant_sprites/up.png"));
-            downSprite = ImageIO.read(new FileInputStream("res/ant_sprites/down.png"));
-            rightSprite = ImageIO.read(new FileInputStream("res/ant_sprites/right.png"));
-            leftSprite = ImageIO.read(new FileInputStream("res/ant_sprites/left.png"));
-        } catch (IOException e) {
-            System.err.println("Error getting ant sprites: " + e.getMessage());
         }
     }
 

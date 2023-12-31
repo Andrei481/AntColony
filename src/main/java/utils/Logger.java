@@ -86,6 +86,7 @@ public class Logger {
             case USE_HOME_PH -> " is backtracking home pheromone";
             case USE_FOOD_PH -> " is backtracking food pheromone";
             case FOOD_PICKUP -> " has picked up food.";
+            case MEAL -> " has eaten";
             case REPRODUCTION -> " has reproduced.";
             case DEATH_STARVATION -> " has starved.";
             case DEATH_AGE -> " has died of old age.";

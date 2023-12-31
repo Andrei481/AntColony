@@ -5,9 +5,12 @@ import entities.Pheromone;
 import simulation.TileManager;
 import utils.Logger;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Map;
 
 import static java.lang.Thread.sleep;
@@ -32,6 +35,7 @@ public class SimulationScreen extends JLayeredPane implements Runnable {
     private static final int drawIntervalMillis = 1000 / FPS; // 1 sec = 1000 ms
     private static long nextDrawTimeMillis;
     private static BufferedImage bufferedMap;
+    public static BufferedImage upSprite, downSprite, rightSprite, leftSprite;
     private static SimulationScreen simulationScreen;
 
 
@@ -45,6 +49,7 @@ public class SimulationScreen extends JLayeredPane implements Runnable {
     public void run() {
         createAppWindow();
         bufferedMap = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
+        getAntSprites();
 
         while (SimulationScreenThread != null) {
             nextDrawTimeMillis = System.currentTimeMillis() + drawIntervalMillis;
@@ -107,6 +112,16 @@ public class SimulationScreen extends JLayeredPane implements Runnable {
         }
     }
 
+    private void getAntSprites() {
+        try {
+            upSprite = ImageIO.read(new FileInputStream("res/ant_sprites/up.png"));
+            downSprite = ImageIO.read(new FileInputStream("res/ant_sprites/down.png"));
+            rightSprite = ImageIO.read(new FileInputStream("res/ant_sprites/right.png"));
+            leftSprite = ImageIO.read(new FileInputStream("res/ant_sprites/left.png"));
+        } catch (IOException e) {
+            System.err.println("Error getting ant sprites: " + e.getMessage());
+        }
+    }
     private static void createAppWindow() {
         simulationScreen.setPreferredSize(new Dimension(screenWidth, screenHeight));
         simulationScreen.setBackground(Color.green);
