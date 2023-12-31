@@ -10,8 +10,9 @@ import java.awt.*;
  */
 
 public class PheromoneColors {
+    private static final int alpha = 175; // opacity
     public static final Color[][] pheromoneColor = {
-            {new Color(255, 255, 255, 0), new Color(255, 150, 150, 75), new Color(255, 75, 75, 75), new Color(255, 0, 0, 75)},
-            {new Color(255, 255, 255, 0), new Color(150, 150, 255, 75), new Color(75, 75, 255, 75), new Color(0, 0, 255, 75)}
+            {new Color(0, 0, 0, 0), new Color(255, 150, 150, alpha), new Color(255, 75, 75, alpha), new Color(255, 0, 0, alpha)},
+            {new Color(0, 0, 0, 0), new Color(150, 150, 255, alpha), new Color(75, 75, 255, alpha), new Color(0, 0, 255, alpha)}
     };
 }

@@ -1,6 +1,7 @@
 package screens;
 
 import entities.Ant;
+import entities.Pheromone;
 import simulation.TileManager;
 import utils.Logger;
 
@@ -11,13 +12,16 @@ import java.util.Map;
 
 import static java.lang.Thread.sleep;
 import static simulation.SimulationMain.antThreadMap;
+import static simulation.SimulationMain.pheromoneGrid;
+
+/* Keep only graphical things in this file */
 
 public class SimulationScreen extends JLayeredPane implements Runnable {
 
     public static final int maxScreenCol = 50;
-    public static final int maxScreenRow = 50;
-    final static int originalTileSize = 10;
-    final static int scale = 2;
+    public static final int maxScreenRow = 30;
+    private final static int originalTileSize = 10;
+    private final static int scale = 2;
     public static int tileSize = originalTileSize * scale;
     public static int screenWidth = tileSize * maxScreenCol;
     public static final int screenHeight = tileSize * maxScreenRow;
@@ -37,7 +41,6 @@ public class SimulationScreen extends JLayeredPane implements Runnable {
         SimulationScreenThread.start();
         Logger.logInfo("GUI started");
     }
-
     @Override
     public void run() {
         createAppWindow();
@@ -59,25 +62,41 @@ public class SimulationScreen extends JLayeredPane implements Runnable {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
 
-        if (mapUpdateNeeded) {
-            /* Update the buffered map tile by tile if any tile changed */
-            tile_manager.draw((Graphics2D) bufferedMap.getGraphics());
-            mapUpdateNeeded = false;
-        }
-
-        /* Draw the map using the already computed buffer */
-        g2.drawImage(bufferedMap, 0, 0, this);
-
-        /* Draw every ant */
-        for (Map.Entry<Ant, Thread> entry : antThreadMap.entrySet()) {
-            entry.getKey().draw(g2);
-        }
+        drawMap(g2);
+        drawAnts(g2);
+        drawPheromones(g2);
 
         g2.dispose();
     }
 
     public static void updateBufferedMap() {
         mapUpdateNeeded = true;
+    }
+    private void drawMap(Graphics2D g2) {
+        if (mapUpdateNeeded) {
+            /* Update map tile by tile if any tile changed */
+            tile_manager.draw((Graphics2D) bufferedMap.getGraphics());
+            mapUpdateNeeded = false;
+        }
+
+        /* Draw the map using the already computed buffer */
+        g2.drawImage(bufferedMap, 0, 0, this);
+    }
+    private void drawAnts(Graphics2D g2) {
+        /* Draw every ant */
+        for (Map.Entry<Ant, Thread> entry : antThreadMap.entrySet()) {
+            entry.getKey().draw(g2);
+        }
+    }
+    private void drawPheromones(Graphics2D g2) {
+        for (int i = 0; i < maxScreenCol; i++) {
+            for (int j = 0; j < maxScreenRow; j++) {
+                Pheromone pheromone = pheromoneGrid[i][j];
+                if (pheromone != null) {
+                    pheromone.draw(g2);
+                }
+            }
+        }
     }
 
     private void sleepUntilNextFrame() throws InterruptedException {
@@ -86,7 +105,6 @@ public class SimulationScreen extends JLayeredPane implements Runnable {
         if (remainingTimeMillis > 0) {
             sleep(remainingTimeMillis);
         }
-
     }
 
     private static void createAppWindow() {
