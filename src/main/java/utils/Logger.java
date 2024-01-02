@@ -85,11 +85,11 @@ public class Logger {
             case FOLLOW_FOOD -> " is following food.";
             case USE_HOME_PH -> " is backtracking home pheromone";
             case USE_FOOD_PH -> " is backtracking food pheromone";
-            case MEAL -> " has eaten.";
+            case FOOD_PICKUP -> " has picked up food.";
+            case MEAL -> " has eaten";
             case REPRODUCTION -> " has reproduced.";
             case DEATH_STARVATION -> " has starved.";
             case DEATH_AGE -> " has died of old age.";
-
             default ->
                     throw new IllegalStateException("Unexpected value when logging simulation ant event: " + eventType);
         };
@@ -104,7 +104,6 @@ public class Logger {
             case FOOD_CREATED -> " has been created";
             case FOOD_REDUCED -> " has " + food.getQuantity() + " servings left";
             case FOOD_DEPLETED -> " has been depleted at position " + Arrays.toString(food.getFoodLocation());
-
             default ->
                     throw new IllegalStateException("Unexpected value when logging simulation food event: " + eventType);
         };

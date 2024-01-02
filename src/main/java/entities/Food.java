@@ -2,9 +2,10 @@ package entities;
 
 import utils.Logger;
 
-import static definitions.SimulationEventType.FOOD_CREATED;
-import static definitions.SimulationEventType.FOOD_REDUCED;
+import static definitions.SimulationEventType.*;
+import static screens.SimulationScreen.tile_manager;
 import static screens.SimulationScreen.updateBufferedMap;
+import static simulation.SimulationMain.foods;
 
 public class Food {
     private static int idCounter = 0;
@@ -36,6 +37,14 @@ public class Food {
     public void decreaseQuantity() {
         this.quantity--;
         Logger.logSimulation(FOOD_REDUCED, this);
-        if (quantity == 0) updateBufferedMap();
+        if (quantity == 0) {
+            updateBufferedMap();
+            foods.remove(this);
+            tile_manager.mapTileNum[posX][posY] = 0;
+            Logger.logSimulation(FOOD_DEPLETED, this);
+
+        }
+
+
     }
 }

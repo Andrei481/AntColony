@@ -25,11 +25,11 @@ public class TileManager {
         mapTileNum = new int[maxScreenCol][maxScreenRow];
         getTileImage();
         SimulationMain.foods = new ArrayList<>();
-        loadMap("res/maps/map50x50.txt");
+        loadMap("res/maps/map50x30.txt");
     }
 
 
-    public void getTileImage() {
+    private void getTileImage() {
         try {
             tile[0] = new TileType();
             tile[0].image = ImageIO.read(new FileInputStream("res/tiles/land.png"));
@@ -70,7 +70,7 @@ public class TileManager {
         }
     }
 
-    public void loadMap(String filepath) {
+    private void loadMap(String filepath) {
         try {
             InputStream is = new FileInputStream(filepath);
             BufferedReader br = new BufferedReader(new InputStreamReader(is));

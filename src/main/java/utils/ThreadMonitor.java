@@ -20,7 +20,7 @@ public class ThreadMonitor implements Runnable {
             try {
                 Thread.sleep(checkInterval); // Sleep for a while before checking again
             } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
+                System.err.println("Thread monitor interrupted: " + e.getMessage());
             }
         }
     }

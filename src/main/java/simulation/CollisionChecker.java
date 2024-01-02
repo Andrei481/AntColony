@@ -10,8 +10,7 @@ import java.util.Set;
 import java.util.concurrent.Semaphore;
 
 import static definitions.AntActionType.SEARCH_NEST;
-import static definitions.SimulationEventType.FOOD_DEPLETED;
-import static definitions.SimulationEventType.MEAL;
+import static definitions.SimulationEventType.FOOD_PICKUP;
 import static screens.SimulationScreen.tileSize;
 import static screens.SimulationScreen.tile_manager;
 import static simulation.SimulationMain.*;
@@ -188,13 +187,9 @@ public class CollisionChecker {
                     int[] foodItemsLocation = foodItem.getFoodLocation();
                     if (Arrays.equals(foodItemsLocation, foundFoodLocation)) {
                         //Logger.logInfo("Got food at location: " + Arrays.toString(foodItemsLocation));
-                        Logger.logSimulation(MEAL, ant);
+                        Logger.logSimulation(FOOD_PICKUP, ant);
                         foodItem.decreaseQuantity();
-                        if (foodItem.getQuantity() == 0) {
-                            foods.remove(foodItem);
-                            tile_manager.mapTileNum[x][y] = 0;
-                            Logger.logSimulation(FOOD_DEPLETED, foodItem);
-                        }
+
                         break;
                     }
                 }

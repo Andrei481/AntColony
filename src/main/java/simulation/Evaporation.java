@@ -5,17 +5,16 @@ import entities.Pheromone;
 import static simulation.SimulationMain.pheromoneGrid;
 
 public class Evaporation implements Runnable {
-    private final int updateIntervalMillis = 3500;
-    private boolean isRunning = true;
-
+    private static Thread evaporationThread;
     public static void launch() {
-        Thread evaporationThread = new Thread(new Evaporation());
+        evaporationThread = new Thread(new Evaporation());
         evaporationThread.start();
     }
 
     @Override
     public void run() {
-        while (isRunning) {
+        while (evaporationThread != null) {
+
             for (Pheromone[] pheromones : pheromoneGrid) {
                 for (Pheromone pheromone : pheromones) {
                     if (pheromone != null) {
@@ -25,14 +24,12 @@ public class Evaporation implements Runnable {
             }
 
             try {
-                Thread.sleep(updateIntervalMillis);
+                Thread.sleep(3500);
+
             } catch (InterruptedException e) {
-                // handle some bs here
+                System.err.println("Pheromone evaporation error: " + e.getMessage());
             }
         }
     }
 
-    public void stopEvaporation() {
-        isRunning = false;
-    }
 }
